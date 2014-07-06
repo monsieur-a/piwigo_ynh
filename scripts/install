@@ -40,6 +40,10 @@ sed -i "s@PATHTOCHANGE@$path@g" ../conf/nginx.conf
 sed -i "s@ALIASTOCHANGE@$final_path/@g" ../conf/nginx.conf
 sudo cp ../conf/nginx.conf /etc/nginx/conf.d/$domain.d/piwigo.conf
 
+sudo cp ../conf/php-fpm.conf /etc/php5/fpm/pool.d/piwigo.conf
+sudo cp ../conf/php-fpm.ini /etc/php5/fpm/conf.d/20-piwigo.ini
+
+sudo sed -i "s@NAMETOCHANGE@piwigo@g" /etc/php5/fpm/pool.d/piwigo.conf
 # Copy files to the right place
 
 
