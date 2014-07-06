@@ -63,7 +63,6 @@ sudo cp -R ../plugins/Ldap_Login $final_path/plugins/Ldap_Login
 
 sudo chown -R www-data:www-data $final_path
 sudo chown -R www-data:www-data $datapath
-sudo chmod -R 755 $final_path
 sudo chmod 777 $final_path/_data
 sudo chmod 777 $final_path/upload
 sudo chmod 755 -R $final_path/galleries
