@@ -49,9 +49,8 @@ sudo mkdir -p $final_path
 sudo mkdir -p $datapath
 sudo mkdir -p $datapath/galleries
 sudo mkdir -p $datapath/upload
-sudo mkdir -p $final_path/_data
 sudo cp -a ../sources/* $final_path
-sudo ln -sd $datapath/_data $final_path/galleries
+sudo ln -sd $datapath/galleries $final_path/galleries
 sudo ln -sd $datapath/upload $final_path/upload
 sudo cp ../conf/index.php $final_path/galleries/index.php
 
