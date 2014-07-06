@@ -53,12 +53,10 @@ sudo mkdir -p $final_path/_data
 sudo cp -a ../sources/* $final_path
 sudo ln -sd $datapath/_data $final_path/galleries
 sudo ln -sd $datapath/upload $final_path/upload
-sudo cp ../conf/index.php $final_path/upload
+sudo cp ../conf/index.php $final_path/galleries/index.php
 
 
 sudo cp ../conf/nginx.conf /etc/nginx/conf.d/$domain.d/piwigo.conf
-#sudo cp ../conf/php-fpm.conf /etc/php5/fpm/pool.d/piwigo.conf
-#sudo cp ../conf/php-fpm.ini /etc/php5/fpm/conf.d/20-piwigo.ini
 sudo cp -R ../plugins/Ldap_Login $final_path/plugins/Ldap_Login
 
 
