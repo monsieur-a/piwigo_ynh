@@ -1,0 +1,1 @@
+allow to login piwigo users with their ldap credentials (login, mail, or another attribute specified by piwigo admins + ldap password). 

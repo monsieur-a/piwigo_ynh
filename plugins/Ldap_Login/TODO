@@ -1,0 +1,30 @@
+TODO :
+auto config (may use ajax): fill in the settings, then the page guess the next settings.
+Ex : after filled the host address, the page guess the base dn. The last to guess is the users OU.
+	Users OU can come with a select field, as the ld_attr.
+
+correct init plugin
+if mail isn't furnished ?
+create common piwigo users upon successfull ldap connection when piwigo user doesn't exist => done !
+	Groups : users may belong to ldap group to allow connection
+	Groups : users belonging to «sudo» or «admin» ldap group become piwigo admin when created this way
+	fetching attributes from ldap (mail…).
+	
+config of the previous one (need tabs)
+config page to render better
+
+########
+
+à faire :
+initialisation du plugin correcte
+qu'est-ce qu'on fait si le mail est pas fourni ?
+configuration automatique (javascript/ajax probable): entrée des paramètres et la page recherche le paramètre suivant si possible.
+Ex : adresse du serveur -> la page trouve toute seule la racine ldap, reste plus que la OU des utilisateurs (qu'on peut selectionner via une liste déroulante).
+	l'attribut d'identification peut être selectionné par une liste déroulante.
+
+creation d'un utilisateur piwigo suite à une authentification ldap quand l'utilisateur n'existe pas. => fait !
+	question de groups : les utilisateurs membres du groupe ldap «sudo» ou autre pourraient automatiquement être admins piwigo
+	question de groupe : les utilisateurs devraient appartenir à un groupe ldap pour se connecter…
+	récuperer les attributs dans le ldap (mail…).
+	
+page de config à peaufiner, option précédente à intégrer dans un onglet.

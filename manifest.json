@@ -1,0 +1,49 @@
+{
+    "name": "Piwigo",
+    "id": "piwigo",
+    "description": {
+        "en": "photo gallery",
+        "fr": "Gallerie photo"
+    },
+    "developer": {
+        "name": "monsieur-a",
+        "email": "simon@monsieur-a.fr",
+        "url": "http://piwigo.org"
+    },
+    "multi_instance": "true",
+    "arguments": {
+        "install" : [
+            {
+                "name": "domain",
+                "ask": {
+                    "en": "Choose a domain for Piwigo"
+                },
+                "example": "domain.org"
+            },
+            {
+                "name": "path",
+                "ask": {
+                    "en": "Choose a path for Piwigo"
+                },
+                "example": "/piwigo",
+                "default": "/piwigo"
+            },
+            {
+                "name": "admin",
+                "ask": {
+                    "en": "Choose the Piwigo administrator (must be an existing YunoHost user)"
+                },
+                "example": "homer"
+            },
+            {
+                "name": "public_site",
+                "ask": {
+                    "en": "Is it a public Piwigo site ?",
+                    "fr": "Est-ce un site public ?"
+                },
+                "choices": ["Yes", "No"],
+                "default": "Yes"
+            }
+        ]
+    }
+}

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+db_user=piwigo
+db_name=piwigo
+root_pwd=$(sudo cat /etc/yunohost/mysql)
+domain=$(sudo yunohost app setting piwigo domain)
+
+mysql -u root -p$root_pwd -e "DROP DATABASE $db_name ; DROP USER $db_user@localhost ;"
+
+sudo rm -rf /var/www/piwigo
+sudo rm -f /etc/nginx/conf.d/$domain.d/piwigo.conf
+sudo rm -f /etc/php5/fpm/pool.d/piwigo.conf
+sudo rm -f /etc/php5/fpm/conf.d/20-piwigo.ini
+sudo rm -rf /home/yunohost.app/piwigo
+
+sudo service nginx reload
+

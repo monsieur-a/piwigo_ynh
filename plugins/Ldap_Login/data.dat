@@ -1,0 +1,1 @@
+a:10:{s:4:"host";s:0:"";s:6:"basedn";s:27:"ou=users,dc=yunohost,dc=org";s:4:"port";s:0:"";s:7:"ld_attr";s:3:"uid";s:9:"ld_binddn";s:0:"";s:9:"ld_bindpw";s:0:"";s:10:"ld_use_ssl";b:0;s:14:"allow_newusers";b:1;s:28:"advertise_admin_new_ldapuser";b:0;s:26:"send_password_by_mail_ldap";b:0;}

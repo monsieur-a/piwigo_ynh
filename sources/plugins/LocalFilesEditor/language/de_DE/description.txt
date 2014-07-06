@@ -1,0 +1,1 @@
+Administratoren können lokale Dateien direkt in Piwigo bearbeiten.
