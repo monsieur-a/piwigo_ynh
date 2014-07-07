@@ -10,6 +10,8 @@ mysql -u root -p$root_pwd -e "DROP DATABASE $db_name ; DROP USER $db_user@localh
 sudo rm -rf /var/www/piwigo
 sudo rm -f /etc/nginx/conf.d/$domain.d/piwigo.conf
 sudo rm -rf /home/yunohost.app/piwigo
+sudo rm /etc/php5/fpm/pool.d/piwigo.conf
+sudo rm /etc/php5/fpm/conf.d/20-piwigo.ini
 
 sudo service nginx reload
 
