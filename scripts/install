@@ -99,6 +99,7 @@ mysql -u $db_user -p$db_pwd $db_user -e "INSERT INTO plugins (id,state,version) 
 
 if [ $is_public = "No" ];
 then
+	sudo cp ../conf/config.inc.php $final_path/local/config/
         sudo yunohost app setting piwigo protected_uris -v "/"
         sudo yunohost app ssowatconf
 fi
