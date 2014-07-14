@@ -54,10 +54,8 @@ sudo ln -sd $datapath/galleries $final_path/galleries
 sudo ln -sd $datapath/upload $final_path/upload
 sudo cp ../conf/index.php $final_path/galleries/index.php
 
-
-sudo cp ../conf/nginx.conf /etc/nginx/conf.d/$domain.d/piwigo.conf
 sudo cp -R ../plugins/Ldap_Login $final_path/plugins/Ldap_Login
-sudo cp ../conf/php-fpm.ini /etc/php5/fpm/conf.d/20-piwigo.ini
+
 
 # set permission
 
@@ -69,7 +67,7 @@ sudo chmod 755 -R $final_path/galleries
 
 
 # Reload Nginx and regenerate SSOwat conf
-sudo service php5-fpm restart
+
 sudo service nginx reload
 sudo yunohost app setting piwigo skipped_uris -v "/"
 sudo yunohost app ssowatconf
