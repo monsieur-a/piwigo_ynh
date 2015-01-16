@@ -7,7 +7,7 @@ user=$3
 is_public=$4
 
 # Check user parameter
-sudo yunohost user list --json | grep -q "\"username\": \"$user\""
+sudo yunohost user list --json | grep -qi "\"username\": \"$user\""
 if [[ ! $? -eq 0 ]]; then
     echo "Wrong user"
     exit 1
