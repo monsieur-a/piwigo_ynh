@@ -40,7 +40,7 @@ if ($page['start']>0 && $page['start']>=count($page['items']))
   page_not_found('', duplicate_index_url(array('start'=>0)));
 }
 
-trigger_action('loc_begin_index');
+trigger_notify('loc_begin_index');
 
 //---------------------------------------------- change of image display order
 if (isset($_GET['image_order']))
@@ -218,9 +218,6 @@ if ( empty($page['is_external']) or !$page['is_external'] )
   if ( $page['section']=='search' and $page['start']==0 and
       !isset($page['chronology_field']) and isset($page['qsearch_details']) )
   {
-    $template->assign('QUERY_SEARCH',
-      htmlspecialchars($page['qsearch_details']['q']) );
-
     $cats = array_merge(
         (array)@$page['qsearch_details']['matching_cats_no_images'],
         (array)@$page['qsearch_details']['matching_cats'] );
@@ -240,6 +237,15 @@ if ( empty($page['is_external']) or !$page['is_external'] )
     {
       $tag['URL'] = make_index_url(array('tags'=>array($tag)));
       $template->append( 'tag_search_results', $tag);
+    }
+    
+    if (empty($page['items']))
+    {
+      $template->append( 'no_search_results', htmlspecialchars($page['qsearch_details']['q']));
+    }
+    elseif (!empty($page['qsearch_details']['unmatched_terms']))
+    {
+      $template->assign( 'no_search_results', array_map('htmlspecialchars', $page['qsearch_details']['unmatched_terms']));
     }
   }
 
@@ -355,7 +361,7 @@ if ( empty($page['is_external']) or !$page['is_external'] )
 
 //------------------------------------------------------------ end
 include(PHPWG_ROOT_PATH.'include/page_header.php');
-trigger_action('loc_end_index');
+trigger_notify('loc_end_index');
 flush_page_messages();
 $template->parse_index_buttons();
 $template->pparse('index');

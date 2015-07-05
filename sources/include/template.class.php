@@ -25,8 +25,7 @@
  * @package template
  */
 
-//require_once( PHPWG_ROOT_PATH .'include/smarty/libs/Smarty.class.php');
-require_once( PHPWG_ROOT_PATH .'include/smarty/libs/SmartyBC.class.php');
+require_once( PHPWG_ROOT_PATH .'include/smarty/libs/Smarty.class.php');
 
 
 /** default rank for buttons */
@@ -83,7 +82,7 @@ class Template
 
     $this->scriptLoader = new ScriptLoader;
     $this->cssLoader = new CssLoader;
-    $this->smarty = new SmartyBC;
+    $this->smarty = new Smarty;
     $this->smarty->debugging = $conf['debug_template'];
     if (!$this->smarty->debugging)
     {
@@ -122,6 +121,7 @@ class Template
     $this->smarty->registerPlugin('modifiercompiler', 'translate', array('Template', 'modcompiler_translate') );
     $this->smarty->registerPlugin('modifiercompiler', 'translate_dec', array('Template', 'modcompiler_translate_dec') );
     $this->smarty->registerPlugin('modifier', 'explode', array('Template', 'mod_explode') );
+    $this->smarty->registerPlugin('modifier', 'ternary', array('Template', 'mod_ternary') );
     $this->smarty->registerPlugin('modifier', 'get_extent', array($this, 'get_extent') );
     $this->smarty->registerPlugin('block', 'html_head', array($this, 'block_html_head') );
     $this->smarty->registerPlugin('block', 'html_style', array($this, 'block_html_style') );
@@ -149,6 +149,16 @@ class Template
     else
       $this->set_template_dir($root);
 
+    if (isset($lang_info['code']) and !isset($lang_info['jquery_code']))
+    {
+      $lang_info['jquery_code'] = $lang_info['code'];
+    }
+
+    if (isset($lang_info['jquery_code']) and !isset($lang_info['plupload_code']))
+    {
+      $lang_info['plupload_code'] = str_replace('-', '_', $lang_info['jquery_code']);
+    }
+    
     $this->smarty->assign('lang_info', $lang_info);
 
     if (!defined('IN_ADMIN') and isset($conf['extents_for_templates']))
@@ -167,7 +177,7 @@ class Template
    * @param bool $load_css
    * @param bool $load_local_head
    */
-  function set_theme($root, $theme, $path, $load_css=true, $load_local_head=true)
+  function set_theme($root, $theme, $path, $load_css=true, $load_local_head=true, $colorscheme='dark')
   {
     $this->set_template_dir($root.'/'.$theme.'/'.$path);
 
@@ -193,6 +203,12 @@ class Template
       $tpl_var['local_head'] = realpath($root.'/'.$theme.'/'.$themeconf['local_head'] );
     }
     $themeconf['id'] = $theme;
+
+    if (!isset($themeconf['colorscheme']))
+    {
+      $themeconf['colorscheme'] = $colorscheme;
+    }
+    
     $this->smarty->append('themes', $tpl_var);
     $this->smarty->append('themeconf', $themeconf, true);
   }
@@ -522,7 +538,7 @@ class Template
       if ($combi->version !== false)
         $href .= '?v' . ($combi->version ? $combi->version : PHPWG_VERSION);
       // trigger the event for eventual use of a cdn
-      $href = trigger_event('combined_css', $href, $combi);
+      $href = trigger_change('combined_css', $href, $combi);
       $content[] = '<link rel="stylesheet" type="text/css" href="'.$href.'">';
     }
     $this->output = str_replace(self::COMBINED_CSS_TAG,
@@ -593,7 +609,7 @@ class Template
 
   /**
    * "translate" variable modifier.
-   * Usage : 
+   * Usage :
    *    - {'Comment'|translate}
    *    - {'%d comments'|translate:$count}
    * @see l10n()
@@ -666,7 +682,7 @@ class Template
   /**
    * "explode" variable modifier.
    * Usage :
-   *    - {assign var=valueExploded value=$value|@explode:','}
+   *    - {assign var=valueExploded value=$value|explode:','}
    *
    * @param string $text
    * @param string $delimiter
@@ -675,6 +691,21 @@ class Template
   static function mod_explode($text, $delimiter=',')
   {
     return explode($delimiter, $text);
+  }
+  
+  /**
+   * ternary variable modifier.
+   * Usage :
+   *    - {$variable|ternary:'yes':'no'}
+   *
+   * @param mixed $param
+   * @param mixed $true
+   * @param mixed $false
+   * @return mixed
+   */
+  static function mod_ternary($param, $true, $false)
+  {
+    return $param ? $true : $false;
   }
 
   /**
@@ -879,7 +910,7 @@ var s,after = document.getElementsByTagName(\'script\')[document.getElementsByTa
       }
     }
     // trigger the event for eventual use of a cdn
-    $ret = trigger_event('combined_script', $ret, $script);
+    $ret = trigger_change('combined_script', $ret, $script);
     return embellish_url($ret);
   }
 
@@ -1102,7 +1133,7 @@ var s,after = document.getElementsByTagName(\'script\')[document.getElementsByTa
 
     if (!empty($css))
     {
-      $source = str_replace("\n{get_combined_css}", "\n".implode( "\n", $css )."\n{get_combined_css}", $source);
+      $source = str_replace("{get_combined_css}", implode( "\n", $css )."\n{get_combined_css}", $source);
     }
 
     return $source;
@@ -1165,7 +1196,7 @@ var s,after = document.getElementsByTagName(\'script\')[document.getElementsByTa
         $buttons = array_merge($buttons, $row);
       }
       $this->assign('PLUGIN_PICTURE_BUTTONS', $buttons);
-      
+
       // only for PHP 5.3
       // $this->assign('PLUGIN_PICTURE_BUTTONS',
           // array_reduce(
@@ -1190,7 +1221,7 @@ var s,after = document.getElementsByTagName(\'script\')[document.getElementsByTa
         $buttons = array_merge($buttons, $row);
       }
       $this->assign('PLUGIN_INDEX_BUTTONS', $buttons);
-      
+
       // only for PHP 5.3
       // $this->assign('PLUGIN_INDEX_BUTTONS',
           // array_reduce(
@@ -1360,18 +1391,18 @@ class CssLoader
   private $registered_css;
   /** @param int used to keep declaration order */
   private $counter;
-  
+
   function __construct()
   {
     $this->clear();
   }
-  
+
   function clear()
   {
     $this->registered_css = array();
     $this->counter = 0;
   }
-  
+
   /**
    * @return Combinable[] array of combined CSS.
    */
@@ -1381,7 +1412,7 @@ class CssLoader
     $combiner = new FileCombiner('css', $this->registered_css);
     return $combiner->combine();
   }
-  
+
   /**
    * Callback for CSS files sorting.
    */
@@ -1389,7 +1420,7 @@ class CssLoader
   {
     return $a->order - $b->order;
   }
-  
+
   /**
    * Adds a new file, if a file with the same $id already exsists, the one with
    * the higher $order or higher $version is kept.
@@ -1884,12 +1915,14 @@ final class FileCombiner
       if ($force || !file_exists(PHPWG_ROOT_PATH.$file) )
       {
         $output = '';
+        $header = '';
         foreach ($pending as $combinable)
         {
           $output .= "/*BEGIN $combinable->path */\n";
-          $output .= $this->process_combinable($combinable, true, $force);
+          $output .= $this->process_combinable($combinable, true, $force, $header);
           $output .= "\n";
         }
+        $output = "/*BEGIN header */\n" . $header . "\n" . $output;
         mkgetdir( dirname(PHPWG_ROOT_PATH.$file) );
         file_put_contents( PHPWG_ROOT_PATH.$file, $output );
         @chmod(PHPWG_ROOT_PATH.$file, 0644);
@@ -1898,7 +1931,8 @@ final class FileCombiner
     }
     elseif ( count($pending)==1)
     {
-      $this->process_combinable($pending[0], false, $force);
+      $header = '';
+      $this->process_combinable($pending[0], false, $force, $header);
       $result[] = $pending[0];
     }
     $key = array();
@@ -1911,9 +1945,12 @@ final class FileCombiner
    * @param Combinable $combinable
    * @param bool $return_content
    * @param bool $force
+   * @param string $header CSS directives that must appear first in
+   *                       the minified file (only used when
+   *                       $return_content===true)
    * @return null|string
    */
-  private function process_combinable($combinable, $return_content, $force)
+  private function process_combinable($combinable, $return_content, $force, &$header)
   {
     global $conf;
     if ($combinable->is_template)
@@ -1935,11 +1972,11 @@ final class FileCombiner
       global $template;
       $handle = $this->type. '.' .$combinable->id;
       $template->set_filename($handle, realpath(PHPWG_ROOT_PATH.$combinable->path));
-      trigger_action( 'combinable_preparse', $template, $combinable, $this); //allow themes and plugins to set their own vars to template ...
+      trigger_notify( 'combinable_preparse', $template, $combinable, $this); //allow themes and plugins to set their own vars to template ...
       $content = $template->parse($handle, true);
 
       if ($this->is_css)
-        $content = self::process_css($content, $combinable->path );
+        $content = self::process_css($content, $combinable->path, $header );
       else
         $content = self::process_js($content, $combinable->path );
 
@@ -1952,7 +1989,7 @@ final class FileCombiner
     {
       $content = file_get_contents(PHPWG_ROOT_PATH . $combinable->path);
       if ($this->is_css)
-        $content = self::process_css($content, $combinable->path );
+        $content = self::process_css($content, $combinable->path, $header );
       else
         $content = self::process_js($content, $combinable->path );
       return $content;
@@ -1981,17 +2018,19 @@ final class FileCombiner
    *
    * @param string $css file content
    * @param string $file
+   * @param string $header CSS directives that must appear first in
+   *                       the minified file.
    * @return string
    */
-  private static function process_css($css, $file)
+  private static function process_css($css, $file, &$header)
   {
-    $css = self::process_css_rec($css, dirname($file));
+    $css = self::process_css_rec($css, dirname($file), $header);
     if (strpos($file, '.min')===false and version_compare(PHP_VERSION, '5.2.4', '>='))
     {
       require_once(PHPWG_ROOT_PATH.'include/cssmin.class.php');
       $css = CssMin::minify($css, array('Variables'=>false));
     }
-    $css = trigger_event('combined_css_postfilter', $css);
+    $css = trigger_change('combined_css_postfilter', $css);
     return $css;
   }
 
@@ -2000,9 +2039,11 @@ final class FileCombiner
    *
    * @param string $css file content
    * @param string $dir
+   * @param string $header CSS directives that must appear first in
+   *                       the minified file.
    * @return string
    */
-  private static function process_css_rec($css, $dir)
+  private static function process_css_rec($css, $dir, &$header)
   {
     static $PATTERN_URL = "#url\(\s*['|\"]{0,1}(.*?)['|\"]{0,1}\s*\)#";
     static $PATTERN_IMPORT = "#@import\s*['|\"]{0,1}(.*?)['|\"]{0,1};#";
@@ -2025,11 +2066,29 @@ final class FileCombiner
     if (preg_match_all($PATTERN_IMPORT, $css, $matches, PREG_SET_ORDER))
     {
       $search = $replace = array();
+      
       foreach ($matches as $match)
       {
         $search[] = $match[0];
-        $sub_css = file_get_contents(PHPWG_ROOT_PATH . $dir . "/$match[1]");
-        $replace[] = self::process_css_rec($sub_css, dirname($dir . "/$match[1]") );
+        
+        if (
+          strpos($match[1], '..') !== false // Possible attempt to get out of Piwigo's dir
+          or strpos($match[1], '://') !== false // Remote URL
+          or !is_readable(PHPWG_ROOT_PATH . $dir . '/' . $match[1])
+          )
+        {
+          // If anything is suspicious, don't try to process the
+          // @import. Since @import need to be first and we are
+          // concatenating several CSS files, remove it from here and return
+          // it through $header.
+          $header .= $match[0];
+          $replace[] = '';
+        }
+        else
+        {
+          $sub_css = file_get_contents(PHPWG_ROOT_PATH . $dir . "/$match[1]");
+          $replace[] = self::process_css_rec($sub_css, dirname($dir . "/$match[1]"), $header);
+        }
       }
       $css = str_replace($search, $replace, $css);
     }

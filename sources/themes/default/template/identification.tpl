@@ -18,14 +18,14 @@
         <span class="property">
           <label for="username">{'Username'|@translate}</label>
         </span>
-        <input tabindex="1" class="login" type="text" name="username" id="username" size="25" maxlength="40">
+        <input tabindex="1" class="login" type="text" name="username" id="username" size="25">
       </li>
 
       <li>
         <span class="property">
           <label for="password">{'Password'|@translate}</label>
         </span>
-        <input tabindex="2" class="login" type="password" name="password" id="password" size="25" maxlength="25">
+        <input tabindex="2" class="login" type="password" name="password" id="password" size="25">
       </li>
 
       {if $authorize_remembering }

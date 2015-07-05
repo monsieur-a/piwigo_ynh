@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: 中文 (香港) [HK]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=614
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -419,4 +419,10 @@ $lang['Password confirmation is missing. Please confirm the chosen password.'] =
 $lang['Password is missing. Please enter the password.'] = '缺少了密碼。請輸入密碼。';
 $lang['%d photos per page'] = '每頁%d張相片';
 $lang['Theme'] = '主題';
-?>
+$lang['Album name, A &rarr; Z'] = '相簿名稱，A->Z';
+$lang['Album name, Z &rarr; A'] = '相簿名稱，Z->A';
+$lang['Apply on properties'] = '套用於屬性';
+$lang['No results for'] = '沒有結果';
+$lang['Photo description'] = '相片描述';
+$lang['Photo title'] = '相片標題';
+$lang['Link: %s'] = '連結: %s';

@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Estonian [EE]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=569
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -441,4 +441,10 @@ $lang['Password is missing. Please enter the password.'] = 'Parool puudub. Palun
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Parooli kinnitus puudub. Palun kinnita valitud parool.';
 $lang['%d photos per page'] = '%d pilte lehel';
 $lang['Theme'] = 'Teema';
-?>
+$lang['Apply on properties'] = 'Rakenda seadistustele';
+$lang['No results for'] = 'tulemusi pole';
+$lang['Photo description'] = 'Foto kirjeldus';
+$lang['Photo title'] = 'Foto pealkiri';
+$lang['Album name, A &rarr; Z'] = 'Albumine nimed, A &rarr;Z';
+$lang['Album name, Z &rarr; A'] = 'Albumine nimed, Z &rarr;A';
+$lang['Link: %s'] = 'Link: %s';

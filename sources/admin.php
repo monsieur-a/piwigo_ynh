@@ -33,7 +33,7 @@ include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 include_once(PHPWG_ROOT_PATH.'admin/include/functions_plugins.inc.php');
 include_once(PHPWG_ROOT_PATH.'admin/include/add_core_tabs.inc.php');
 
-trigger_action('loc_begin_admin');
+trigger_notify('loc_begin_admin');
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -244,7 +244,7 @@ if ($nb_photos_in_caddie > 0)
 // | Plugin menu                                                           |
 // +-----------------------------------------------------------------------+
 
-$plugin_menu_links = trigger_event('get_admin_plugin_menu_links', array() );
+$plugin_menu_links = trigger_change('get_admin_plugin_menu_links', array() );
 
 function UC_name_compare($a, $b)
 {
@@ -270,7 +270,6 @@ if (
           'album',        // public/private; lock/unlock, permissions
           'cat_move',
           'cat_options',  // public/private; lock/unlock
-          'batch_manager',  // associate/dissociate; delete; set level
           'user_list',    // group assoc; user level
           'user_perm',
         )
@@ -285,7 +284,7 @@ if (
 // | Include specific page                                                 |
 // +-----------------------------------------------------------------------+
 
-trigger_action('loc_begin_admin_page');
+trigger_notify('loc_begin_admin_page');
 include(PHPWG_ROOT_PATH.'admin/'.$page['page'].'.php');
 
 $template->assign('ACTIVE_MENU', get_active_menu($page['page']));
@@ -299,7 +298,7 @@ $template->assign( 'pwgmenu', pwg_URL() );
 
 include(PHPWG_ROOT_PATH.'include/page_header.php');
 
-trigger_action('loc_end_admin');
+trigger_notify('loc_end_admin');
 
 flush_page_messages();
 

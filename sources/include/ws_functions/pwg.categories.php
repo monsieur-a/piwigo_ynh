@@ -264,7 +264,7 @@ SELECT
     else
     {
       $row['name'] = strip_tags(
-        trigger_event(
+        trigger_change(
           'render_category_name',
           $row['name'],
           'ws_categories_getList'
@@ -273,7 +273,7 @@ SELECT
     }
 
     $row['comment'] = strip_tags(
-      trigger_event(
+      trigger_change(
         'render_category_description',
         $row['comment'],
         'ws_categories_getList'
@@ -486,10 +486,10 @@ SELECT category_id, COUNT(*) AS counter
   FROM '. IMAGE_CATEGORY_TABLE .'
   GROUP BY category_id
 ;';
-  $nb_images_of = simple_hash_from_query($query, 'category_id', 'counter');
+  $nb_images_of = query2array($query, 'category_id', 'counter');
 
   $query = '
-SELECT id, name, comment, uppercats, global_rank
+SELECT id, name, comment, uppercats, global_rank, dir
   FROM '. CATEGORIES_TABLE .'
 ;';
   $result = pwg_query($query);
@@ -501,14 +501,20 @@ SELECT id, name, comment, uppercats, global_rank
     $row['nb_images'] = isset($nb_images_of[$id]) ? $nb_images_of[$id] : 0;
 
     $row['name'] = strip_tags(
-      trigger_event(
+      trigger_change(
         'render_category_name',
         $row['name'],
         'ws_categories_getAdminList'
         )
       );
+    $row['fullname'] = strip_tags(
+      get_cat_display_name_cache(
+        $row['uppercats'],
+        null
+        )
+      );
     $row['comment'] = strip_tags(
-      trigger_event(
+      trigger_change(
         'render_category_description',
         $row['comment'],
         'ws_categories_getAdminList'
@@ -781,7 +787,7 @@ SELECT id, name, dir
     if (!empty($row['dir']))
     {
       $row['name'] = strip_tags(
-        trigger_event(
+        trigger_change(
           'render_category_name',
           $row['name'],
           'ws_categories_move'

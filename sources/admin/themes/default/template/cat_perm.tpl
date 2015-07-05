@@ -1,39 +1,52 @@
-{combine_script id='jquery.chosen' load='footer' path='themes/default/js/plugins/chosen.jquery.min.js'}
-{combine_css path="themes/default/js/plugins/chosen.css"}
+{combine_script id='LocalStorageCache' load='footer' path='admin/themes/default/js/LocalStorageCache.js'}
 
-{footer_script}{literal}
-jQuery(document).ready(function() {
-  jQuery(".chzn-select").chosen();
+{combine_script id='jquery.selectize' load='footer' path='themes/default/js/plugins/selectize.min.js'}
+{combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.{$themeconf.colorscheme}.css"}
 
-  function checkStatusOptions() {
-    if (jQuery("input[name=status]:checked").val() == "private") {
-      jQuery("#privateOptions, #applytoSubAction").show();
-    }
-    else {
-      jQuery("#privateOptions, #applytoSubAction").hide();
-    }
-  }
-
-  checkStatusOptions();
-  jQuery("#selectStatus").change(function() {
-    checkStatusOptions();
-  });
-
-  jQuery("#indirectPermissionsDetailsShow").click(function(){
-    jQuery("#indirectPermissionsDetailsShow").hide();
-    jQuery("#indirectPermissionsDetailsHide").show();
-    jQuery("#indirectPermissionsDetails").show();
-    return false;
-  });
-
-  jQuery("#indirectPermissionsDetailsHide").click(function(){
-    jQuery("#indirectPermissionsDetailsShow").show();
-    jQuery("#indirectPermissionsDetailsHide").hide();
-    jQuery("#indirectPermissionsDetails").hide();
-    return false;
-  });
+{footer_script}
+(function(){
+{* <!-- GROUPS --> *}
+var groupsCache = new GroupsCache({
+  serverKey: '{$CACHE_KEYS.groups}',
+  serverId: '{$CACHE_KEYS._hash}',
+  rootUrl: '{$ROOT_URL}'
 });
-{/literal}{/footer_script}
+
+groupsCache.selectize(jQuery('[data-selectize=groups]'));
+
+{* <!-- USERS --> *}
+var usersCache = new UsersCache({
+  serverKey: '{$CACHE_KEYS.users}',
+  serverId: '{$CACHE_KEYS._hash}',
+  rootUrl: '{$ROOT_URL}'
+});
+
+usersCache.selectize(jQuery('[data-selectize=users]'));
+
+{* <!-- TOGGLES --> *}
+function checkStatusOptions() {
+  if (jQuery("input[name=status]:checked").val() == "private") {
+    jQuery("#privateOptions, #applytoSubAction").show();
+  }
+  else {
+    jQuery("#privateOptions, #applytoSubAction").hide();
+  }
+}
+
+checkStatusOptions();
+jQuery("#selectStatus").change(function() {
+  checkStatusOptions();
+});
+
+{if isset($nb_users_granted_indirect) && $nb_users_granted_indirect>0}
+  jQuery(".toggle-indirectPermissions").click(function(e){
+    jQuery(".toggle-indirectPermissions").toggle();
+    jQuery("#indirectPermissionsDetails").toggle();
+    e.preventDefault();
+  });
+{/if}
+}());
+{/footer_script}
 
 <div class="titrePage">
   <h2><span style="letter-spacing:0">{$CATEGORIES_NAV}</span> &#8250; {'Edit album'|@translate} {$TABSHEET_TITLE}</h2>
@@ -58,9 +71,9 @@ jQuery(document).ready(function() {
 {if count($groups) > 0}
     <strong>{'Permission granted for groups'|@translate}</strong>
     <br>
-    <select data-placeholder="{'Select groups...'|@translate}" class="chzn-select" multiple style="width:700px;" name="groups[]">
-      {html_options options=$groups selected=$groups_selected}
-    </select>
+    <select data-selectize="groups" data-value="{$groups_selected|@json_encode|escape:html}"
+      placeholder="{'Type in a search term'|translate}"
+      name="groups[]" multiple style="width:600px;"></select>
 {else}
     {'There is no group in this gallery.'|@translate} <a href="admin.php?page=group_list" class="externalLink">{'Group management'|@translate}</a>
 {/if}
@@ -69,16 +82,16 @@ jQuery(document).ready(function() {
   <p>
     <strong>{'Permission granted for users'|@translate}</strong>
     <br>
-    <select data-placeholder="{'Select users...'|@translate}" class="chzn-select" multiple style="width:700px;" name="users[]">
-      {html_options options=$users selected=$users_selected}
-    </select>
+    <select data-selectize="users" data-value="{$users_selected|@json_encode|escape:html}"
+      placeholder="{'Type in a search term'|translate}"
+      name="users[]" multiple style="width:600px;"></select>
   </p>
 
-{if isset($nb_users_granted_indirect)}
+{if isset($nb_users_granted_indirect) && $nb_users_granted_indirect>0}
   <p>
     {'%u users have automatic permission because they belong to a granted group.'|@translate:$nb_users_granted_indirect}
-    <a href="#" id="indirectPermissionsDetailsHide" style="display:none">{'hide details'|@translate}</a>
-    <a href="#" id="indirectPermissionsDetailsShow">{'show details'|@translate}</a>
+    <a href="#" class="toggle-indirectPermissions" style="display:none">{'hide details'|@translate}</a>
+    <a href="#" class="toggle-indirectPermissions">{'show details'|@translate}</a>
 
     <ul id="indirectPermissionsDetails" style="display:none">
   {foreach from=$user_granted_indirect_groups item=group_details}
@@ -150,7 +163,10 @@ jQuery(document).ready(function() {
 
   <p style="margin:12px;text-align:left;">
     <input class="submit" type="submit" value="{'Save Settings'|@translate}" name="submit">
-    <label id="applytoSubAction" style="display:none;"><input type="checkbox" name="apply_on_sub" {if $INHERIT}checked="checked"{/if}>{'Apply to sub-albums'|@translate}</label>
+    <label id="applytoSubAction" style="display:none;">
+      <input type="checkbox" name="apply_on_sub" {if $INHERIT}checked="checked"{/if}>
+      {'Apply to sub-albums'|@translate}
+    </label>
   </p>
 
 <input type="hidden" name="pwg_token" value="{$PWG_TOKEN}">

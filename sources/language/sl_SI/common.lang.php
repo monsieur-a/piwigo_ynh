@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Slovenšcina [SI]
-Version: 2.6.1
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=453
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -43,8 +43,8 @@ $lang['%d new comment'] = '%d nov komentar';
 $lang['%d new comments'] = '%d novih komentarjev';
 $lang['%d comment'] = '%d komentar';
 $lang['%d comments'] = '%d komentarjev';
-$lang['%d hit'] = '%d zadetek';
-$lang['%d hits'] = '%d zadetkov';
+$lang['%d hit'] = '%d ogled';
+$lang['%d hits'] = 'št. ogledov: %d';
 $lang['%d new user'] = '%d nov uporabnik';
 $lang['%d new users'] = '%d novih uporabnikov';
 $lang['About'] = 'Vizitka';
@@ -66,7 +66,7 @@ $lang['Dimensions'] = 'Dimenzije';
 $lang['Display'] = 'Prikaz';
 $lang['%d new photo'] = '%d nova slika';
 $lang['%d new photos'] = '%d novih slik';
-$lang['Complete RSS feed (photos, comments)'] = 'Poln RSS vir (slike, komentarji)';
+$lang['Complete RSS feed (photos, comments)'] = 'Polni RSS vir (slike, komentarji)';
 $lang['Login'] = 'Prijava';
 $lang['Each listed rule must be satisfied.'] = 'Vsa pravila morajo biti izpolnjena.';
 $lang['Email address'] = 'E-pošta';
@@ -80,13 +80,13 @@ $lang['Filter'] = 'Filter';
 $lang['Forgot your password?'] = 'Ste pozabili vaše geslo?';
 $lang['Go through the gallery as a visitor'] = 'Ogled galerije kot obiskovalec';
 $lang['Help'] = 'Pomoč';
-$lang['Identification'] = 'Identifikacija';
+$lang['Identification'] = 'Prijava';
 $lang['Photos only RSS feed'] = 'Slikovni RSS vir (samo slike)';
 $lang['Keyword'] = 'Ključna beseda';
 $lang['Links'] = 'Povezave';
 $lang['N/A'] = 'Ni na voljo';
 $lang['New on %s'] = 'Nov na %s';
-$lang['Notification'] = 'Obvestilo';
+$lang['Notification'] = 'Obveščanje';
 $lang['Number of items'] = 'Število predmetov ';
 $lang['Original dimensions'] = 'Originalna velikost';
 $lang['Password forgotten'] = 'Pozabljeno geslo';
@@ -153,7 +153,7 @@ $lang['Sort by'] = 'Uredi po';
 $lang['Sort order'] = 'Urejeno po';
 $lang['Tag'] = 'Oznaka';
 $lang['Tags'] = 'Oznake';
-$lang['The RSS notification feed provides notification on news from this website : new photos, updated albums, new comments. Use a RSS feed reader.'] = 'RSS viri omogočajo prijavo na novosti te spletne strani, kot so: nove slike, novi albumi, novi komentarji. Za uporabo je potreben RSS odjemalec.';
+$lang['The RSS notification feed provides notification on news from this website : new photos, updated albums, new comments. Use a RSS feed reader.'] = 'RSS viri omogočajo prijavo na novosti spletne strani kot so: nove slike, novi albumi, novi komentarji. Za uporabo je potreben RSS odjemalec.';
 $lang['Default'] = 'Privzeto';
 $lang['delete this photo from your favorites'] = 'odstrani to sliko iz svojih priljubljenih';
 $lang['Delete'] = 'Izbriši';
@@ -242,7 +242,7 @@ $lang['display all photos in all sub-albums'] = 'prikaži vse slike v vseh pod-a
 $lang['return to normal view mode'] = 'vrni se v normalni način';
 $lang['display a calendar by posted date'] = 'prikaži kolendar po datumu objave';
 $lang['Show number of comments'] = 'Prikaži število komentarjev';
-$lang['Show number of hits'] = 'Prikaži število zadetkov';
+$lang['Show number of hits'] = 'Prikaži število ogledov';
 $lang['slideshow'] = 'diaprojekcija';
 $lang['stop the slideshow'] = 'ustavi diaprojekcijo';
 $lang['Specials'] = 'Posebno';
@@ -417,4 +417,10 @@ $lang['Password is missing. Please enter the password.'] = 'Manjka geslo. Prosim
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Manjka potrditev gesla. Prosimo potrdite izbrano geslo.';
 $lang['%d photos per page'] = '%d slik na stran';
 $lang['Theme'] = 'Preobleka';
-?>
+$lang['No results for'] = 'Ni zadetkov za';
+$lang['Album name, A &rarr; Z'] = 'Ime Albuma, A &rarr; Ž';
+$lang['Album name, Z &rarr; A'] = 'Ime Albuma, Ž &rarr; A';
+$lang['Apply on properties'] = 'Uporabi v lastnostih';
+$lang['Link: %s'] = 'Povezava: %s';
+$lang['Photo description'] = 'Opis slike';
+$lang['Photo title'] = 'Ime slike';

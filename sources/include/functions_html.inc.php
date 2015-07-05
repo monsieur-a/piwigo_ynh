@@ -51,7 +51,7 @@ function get_cat_display_name($cat_informations, $url='')
         'get_cat_display_name wrong type for category ', E_USER_WARNING
       );
 
-    $cat['name'] = trigger_event(
+    $cat['name'] = trigger_change(
       'render_category_name',
       $cat['name'],
       'get_cat_display_name'
@@ -113,7 +113,7 @@ function get_cat_display_name_cache($uppercats,
 SELECT id, name, permalink
   FROM '.CATEGORIES_TABLE.'
 ;';
-    $cache['cat_names'] = hash_from_query($query, 'id');
+    $cache['cat_names'] = query2array($query, 'id');
   }
 
   $output = '';
@@ -132,7 +132,7 @@ SELECT id, name, permalink
   {
     $cat = $cache['cat_names'][$category_id];
 
-    $cat['name'] = trigger_event(
+    $cat['name'] = trigger_change(
       'render_category_name',
       $cat['name'],
       'get_cat_display_name_cache'
@@ -231,54 +231,6 @@ function render_comment_content($content)
   return $content;
 }
 
-/**
- * Returns an HTML list of tags. It can be a multi select field or a list of
- * checkboxes.
- *
- * @param string HTML field name
- * @param array selected tag ids
- * @return array
- */
-function get_html_tag_selection(
-  $tags,
-  $fieldname,
-  $selecteds = array(),
-  $forbidden_categories = null
-  )
-{
-  global $conf;
-
-  if (count ($tags) == 0 )
-  {
-    return '';
-  }
-  $output = '<ul class="tagSelection">';
-  foreach ($tags as $tag)
-  {
-    $output.=
-      '<li>'
-      .'<label>'
-      .'<input type="checkbox" name="'.$fieldname.'[]"'
-      .' value="'.$tag['id'].'"'
-      ;
-
-    if (in_array($tag['id'], $selecteds))
-    {
-      $output.= ' checked="checked"';
-    }
-
-    $output.=
-      '> '
-      .$tag['name']
-      .'</label>'
-      .'</li>'
-      ."\n"
-      ;
-  }
-  $output.= '</ul>';
-
-  return $output;
-}
 
 /**
  * Callback used for sorting by name.
@@ -463,7 +415,7 @@ function get_tags_content_title()
       .'" title="'
       .l10n('display photos linked to this tag')
       .'">'
-      .trigger_event('render_tag_name', $page['tags'][$i]['name'], $page['tags'][$i])
+      .trigger_change('render_tag_name', $page['tags'][$i]['name'], $page['tags'][$i])
       .'</a>';
 
     if (count($page['tags']) > 2)
@@ -517,12 +469,12 @@ function set_status_header($code, $text='')
     $protocol = 'HTTP/1.0';
 
   header( "$protocol $code $text", true, $code );
-  trigger_action('set_status_header', $code, $text);
+  trigger_notify('set_status_header', $code, $text);
 }
 
 /**
  * Returns the category comment for rendering in html textual mode (subcatify)
- * This method is called by a trigger_action()
+ * This method is called by a trigger_notify()
  *
  * @param string $desc
  * @return string
@@ -534,7 +486,7 @@ function render_category_literal_description($desc)
 
 /**
  * Add known menubar blocks.
- * This method is called by a trigger_event()
+ * This method is called by a trigger_change()
  *
  * @param BlockManager[] $menu_ref_arr
  */
@@ -562,7 +514,7 @@ function render_element_name($info)
 {
   if (!empty($info['name']))
   {
-    return trigger_event('render_element_name', $info['name']);
+    return trigger_change('render_element_name', $info['name']);
   }
   return get_name_from_file($info['file']);
 }
@@ -578,7 +530,7 @@ function render_element_description($info, $param='')
 {
   if (!empty($info['comment']))
   {
-    return trigger_event('render_element_description', $info['comment'], $param);
+    return trigger_change('render_element_description', $info['comment'], $param);
   }
   return '';
 }
@@ -624,7 +576,7 @@ function get_thumbnail_title($info, $title, $comment='')
   }
 
   $title = htmlspecialchars(strip_tags($title));
-  $title = trigger_event('get_thumbnail_title', $title, $info);
+  $title = trigger_change('get_thumbnail_title', $title, $info);
 
   return $title;
 }

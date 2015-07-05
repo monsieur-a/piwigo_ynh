@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Dansk [DK]
-Version: 2.6.0
+Version: 2.7.1
 Language URI: http://piwigo.org/ext/extension_view.php?eid=415
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -385,8 +385,8 @@ $lang['2small'] = 'XXS - meget lille';
 $lang['xsmall'] = 'XS - ekstra lille';
 $lang['File name, A &rarr; Z'] = 'Filnavn, A &rarr; Å';
 $lang['File name, Z &rarr; A'] = 'Filnavn, Å &rarr; A';
-$lang['Photo title, A &rarr; Z'] = 'Fototitel, A &rarr; Z';
-$lang['Photo title, Z &rarr; A'] = 'Fototitel, Z &rarr; A';
+$lang['Photo title, A &rarr; Z'] = 'Fototitel, A &rarr; Å';
+$lang['Photo title, Z &rarr; A'] = 'Fototitel, Å &rarr; A';
 $lang['Date created, new &rarr; old'] = 'Dato oprettet, ny &rarr; gammel'; 
 $lang['Date created, old &rarr; new'] = 'Dato oprettet, gammel &rarr; ny'; 
 $lang['Date posted, new &rarr; old'] = 'Dato tilføjet, ny &rarr; gammel';
@@ -421,4 +421,10 @@ $lang['Password is missing. Please enter the password.'] = 'Adgangskoden mangler
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Adgangskodebekræftelse mangler. Bekræft den valgte adgangskode.';
 $lang['%d photos per page'] = '%d fotografier pr. side';
 $lang['Theme'] = 'Tema';
-?>
+$lang['No results for'] = 'Ingen resultater for';
+$lang['Apply on properties'] = 'Udfør på alle egenskaber';
+$lang['Photo description'] = 'Fotobeskrivelse';
+$lang['Photo title'] = 'Fototitel';
+$lang['Album name, A &rarr; Z'] = 'Albumnavn, A &rarr; Å';
+$lang['Album name, Z &rarr; A'] = 'Albumnavn, Å &rarr; A';
+$lang['Link: %s'] = 'Link: %s';

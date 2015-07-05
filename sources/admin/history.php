@@ -73,24 +73,16 @@ $search = array();
 if (isset($_POST['submit']))
 {
   // dates
-  if (!empty($_POST['start_year']))
+  if (!empty($_POST['start']))
   {
-    $search['fields']['date-after'] = sprintf(
-      '%d-%02d-%02d',
-      $_POST['start_year'],
-      $_POST['start_month'],
-      $_POST['start_day']
-      );
+    check_input_parameter('start', $_POST, false, '/^\d{4}-\d{2}-\d{2}$/');
+    $search['fields']['date-after'] = $_POST['start'];
   }
 
-  if (!empty($_POST['end_year']))
+  if (!empty($_POST['end']))
   {
-    $search['fields']['date-before'] = sprintf(
-      '%d-%02d-%02d',
-      $_POST['end_year'],
-      $_POST['end_month'],
-      $_POST['end_day']
-      );
+    check_input_parameter('end', $_POST, false, '/^\d{4}-\d{2}-\d{2}$/');
+    $search['fields']['date-before'] = $_POST['end'];
   }
 
   if (empty($_POST['types']))
@@ -99,10 +91,11 @@ if (isset($_POST['submit']))
   }
   else
   {
+    check_input_parameter('types', $_POST, true, '/^('.implode('|', $types).')$/');
     $search['fields']['types'] = $_POST['types'];
   }
 
-  $search['fields']['user'] = $_POST['user'];
+  $search['fields']['user'] = intval($_POST['user']);
 
   if (!empty($_POST['image_id']))
   {
@@ -127,6 +120,8 @@ if (isset($_POST['submit']))
       );
   }
 
+  check_input_parameter('display_thumbnail', $_POST, false, '/^('.implode('|', array_keys($display_thumbnails)).')$/');
+  
   $search['fields']['display_thumbnail'] = $_POST['display_thumbnail'];
   // Display choise are also save to one cookie
   if (!empty($_POST['display_thumbnail'])
@@ -152,8 +147,9 @@ if (isset($_POST['submit']))
 INSERT INTO '.SEARCH_TABLE.'
   (rules)
   VALUES
-  (\''.serialize($search).'\')
+  (\''.pwg_db_real_escape_string(serialize($search)).'\')
 ;';
+
     pwg_query($query);
 
     $search_id = pwg_db_insert_id(SEARCH_TABLE);
@@ -225,7 +221,8 @@ INSERT INTO '.SEARCH_TABLE.'
       );
   }
 
-  $data = trigger_event('get_history', array(), $page['search'], $types);
+  /*TODO - no need to get a huge number of rows from db (should take only what needed for display + SQL_CALC_FOUND_ROWS*/
+  $data = trigger_change('get_history', array(), $page['search'], $types);
   usort($data, 'history_compare');
 
   $page['nb_lines'] = count($data);
@@ -284,7 +281,7 @@ SELECT id, uppercats
   FROM '.CATEGORIES_TABLE.'
   WHERE id IN ('.implode(',', array_keys($category_ids)).')
 ;';
-    $uppercats_of = simple_hash_from_query($query, 'id', 'uppercats');
+    $uppercats_of = query2array($query, 'id', 'uppercats');
 
     $name_of_category = array();
 
@@ -309,27 +306,7 @@ SELECT
   FROM '.IMAGES_TABLE.'
   WHERE id IN ('.implode(',', array_keys($image_ids)).')
 ;';
-    // $label_of_image = simple_hash_from_query($query, 'id', 'label');
-    $label_of_image = array();
-    $filesize_of_image = array();
-    $file_of_image = array();
-    $path_of_image = array();
-    $representative_ext_of_image = array();
-
-    $result = pwg_query($query);
-    while ($row = pwg_db_fetch_assoc($result))
-    {
-      $label_of_image[ $row['id'] ] = trigger_event('render_element_description', $row['label']);
-
-      if (isset($row['filesize']))
-      {
-        $filesize_of_image[ $row['id'] ] = $row['filesize'];
-      }
-
-      $file_of_image[ $row['id'] ] = $row['file'];
-      $path_of_image[ $row['id'] ] = $row['path'];
-      $representative_ext_of_image[ $row['id'] ] = $row['representative_ext'];
-    }
+    $image_infos = query2array($query, 'id');
   }
 
   if ($has_tags > 0)
@@ -345,7 +322,7 @@ SELECT
     $result = pwg_query($query);
     while ($row=pwg_db_fetch_assoc($result))
     {
-      $name_of_tag[ $row['id'] ] = '<a href="'.make_index_url( array('tags'=>array($row))).'">'.trigger_event("render_tag_name", $row['name'], $row).'</a>';
+      $name_of_tag[ $row['id'] ] = '<a href="'.make_index_url( array('tags'=>array($row))).'">'.trigger_change("render_tag_name", $row['name'], $row).'</a>';
     }
   }
 
@@ -360,10 +337,7 @@ SELECT
   {
     if (isset($line['image_type']) and $line['image_type'] == 'high')
     {
-      if (isset($filesize_of_image[$line['image_id']]))
-      {
-        $summary['total_filesize'] += $filesize_of_image[$line['image_id']];
-      }
+      $summary['total_filesize'] += @intval($image_infos[$line['image_id']]['filesize']);
     }
 
     if ($line['user_id'] == $conf['guest_id'])
@@ -421,13 +395,13 @@ SELECT
           )
         );
 
-      if (isset($file_of_image[$line['image_id']]))
+      if (isset($image_infos[$line['image_id']]))
       {
         $element = array(
           'id' => $line['image_id'],
-          'file' => $file_of_image[$line['image_id']],
-          'path' => $path_of_image[$line['image_id']],
-          'representative_ext' => $representative_ext_of_image[$line['image_id']],
+          'file' => $image_infos[$line['image_id']]['file'],
+          'path' => $image_infos[$line['image_id']]['path'],
+          'representative_ext' => $image_infos[$line['image_id']]['representative_ext'],
           );
         $thumbnail_display = $page['search']['fields']['display_thumbnail'];
       }
@@ -438,9 +412,9 @@ SELECT
 
       $image_title = '('.$line['image_id'].')';
 
-      if (isset($label_of_image[$line['image_id']]))
+      if (isset($image_infos[$line['image_id']]['label']))
       {
-        $image_title.= ' '.$label_of_image[$line['image_id']];
+        $image_title.= ' '.trigger_change('render_element_description', $image_infos[$line['image_id']]['label']);
       }
       else
       {
@@ -573,20 +547,12 @@ if (isset($page['search']))
 {
   if (isset($page['search']['fields']['date-after']))
   {
-    $tokens = explode('-', $page['search']['fields']['date-after']);
-
-    $form['start_year']  = (int)$tokens[0];
-    $form['start_month'] = (int)$tokens[1];
-    $form['start_day']   = (int)$tokens[2];
+    $form['start'] = $page['search']['fields']['date-after'];
   }
 
   if (isset($page['search']['fields']['date-before']))
   {
-    $tokens = explode('-', $page['search']['fields']['date-before']);
-
-    $form['end_year']  = (int)$tokens[0];
-    $form['end_month'] = (int)$tokens[1];
-    $form['end_day']   = (int)$tokens[2];
+    $form['end'] = $page['search']['fields']['date-before'];
   }
 
   $form['types'] = $page['search']['fields']['types'];
@@ -610,9 +576,7 @@ else
 {
   // by default, at page load, we want the selected date to be the current
   // date
-  $form['start_year']  = $form['end_year']  = date('Y');
-  $form['start_month'] = $form['end_month'] = date('n');
-  $form['start_day']   = $form['end_day']   = date('j');
+  $form['start'] = $form['end'] = date('Y-m-d');
   $form['types'] = $types;
   // Hoverbox by default
   $form['display_thumbnail'] =
@@ -620,25 +584,13 @@ else
 }
 
 
-$month_list = $lang['month'];
-$month_list[0]='------------';
-ksort($month_list);
-
 $template->assign(
   array(
     'IMAGE_ID' => @$form['image_id'],
     'FILENAME' => @$form['filename'],
     'IP' => @$form['ip'],
-
-    'month_list' => $month_list,
-
-    'START_DAY_SELECTED' => @$form['start_day'],
-    'START_MONTH_SELECTED' => @$form['start_month'],
-    'START_YEAR' => @$form['start_year'],
-
-    'END_DAY_SELECTED' => @$form['end_day'],
-    'END_MONTH_SELECTED' => @$form['end_month'],
-    'END_YEAR'   => @$form['end_year'],
+    'START' => @$form['start'],
+    'END' => @$form['end'],
     )
   );
 
@@ -659,7 +611,7 @@ SELECT
 ;';
 $template->assign(
   array(
-    'user_options' => simple_hash_from_query($query, 'id','username'),
+    'user_options' => query2array($query, 'id','username'),
     'user_options_selected' => array(@$form['user'])
   )
 );

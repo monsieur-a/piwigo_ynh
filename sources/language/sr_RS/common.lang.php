@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Српски [SR]
-Version: 2.6.1
+Version: 2.7.2
 Language URI: http://piwigo.org/ext/extension_view.php?eid=458
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -33,6 +33,7 @@ $lang_info['language_name'] = 'Српски';
 $lang_info['country'] = 'Србија';
 $lang_info['direction'] = 'ltr';
 $lang_info['code'] = 'sr';
+$lang_info['plupload_code'] = 'sr_RS';
 $lang_info['zero_plural'] = true;
 
 $lang['%d Kb'] = '%d Kb';
@@ -419,4 +420,10 @@ $lang['First Page'] = 'Прва страна';
 $lang['Go back to the album'] = 'Повратак на албум';
 $lang['Last Page'] = 'Последња страна';
 $lang['Theme'] = 'Тема';
-?>
+$lang['No results for'] = 'Нема резултата за';
+$lang['Photo description'] = 'Опис фотографије';
+$lang['Photo title'] = 'Наслов фотографије';
+$lang['Apply on properties'] = 'Примени на особине';
+$lang['Album name, A &rarr; Z'] = 'Назив албума, А &rarr; Ш';
+$lang['Album name, Z &rarr; A'] = 'Назив албума, Ш &rarr; А';
+$lang['Link: %s'] = 'Веза: %s';

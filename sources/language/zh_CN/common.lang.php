@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: 简体中文 [CN]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=438
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -33,6 +33,7 @@ $lang_info['language_name'] = "简体中文";
 $lang_info['country'] = "中国";
 $lang_info['direction'] = "ltr";
 $lang_info['code'] = "cn";
+$lang_info['jquery_code'] = "zh-CN";
 $lang_info['zero_plural'] = true;
 
 $lang['%d Kb'] = '%dKb';
@@ -421,4 +422,10 @@ $lang['Password is missing. Please enter the password.'] = '密码未输入，�
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = '密码确认未完成，请确认所选定的密码。';
 $lang['%d photos per page'] = '每页 %d 张相片 ';
 $lang['Theme'] = '主题';
-?>
+$lang['No results for'] = '没有结果';
+$lang['Apply on properties'] = '应用到属性';
+$lang['Photo description'] = '相片描述';
+$lang['Photo title'] = '相片标题';
+$lang['Album name, A &rarr; Z'] = '相册名称， A &rarr; Z';
+$lang['Album name, Z &rarr; A'] = '相册名称， Z &rarr; A';
+$lang['Link: %s'] = '链接： %s';

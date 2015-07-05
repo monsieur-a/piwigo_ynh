@@ -174,7 +174,7 @@ function register_user($login, $password, $mail_address, $notify_admin=true, &$e
     }
   }
 
-  $errors = trigger_event(
+  $errors = trigger_change(
     'register_user_check',
     $errors,
     array(
@@ -236,7 +236,7 @@ SELECT id
 
       $keyargs_content = array(
         get_l10n_args('User: %s', stripslashes($login) ),
-        get_l10n_args('Email: %s', $_POST['mail_address']),
+        get_l10n_args('Email: %s', $mail_address),
         get_l10n_args(''),
         get_l10n_args('Admin: %s', $admin_url),
         );
@@ -250,19 +250,21 @@ SELECT id
     if ($notify_user and email_check_format($mail_address))
     {
       include_once(PHPWG_ROOT_PATH.'include/functions_mail.inc.php');
-            
+
       $keyargs_content = array(
         get_l10n_args('Hello %s,', stripslashes($login)),
         get_l10n_args('Thank you for registering at %s!', $conf['gallery_title']),
         get_l10n_args('', ''),
         get_l10n_args('Here are your connection settings', ''),
+        get_l10n_args('', ''),
+        get_l10n_args('Link: %s', get_absolute_root_url()),
         get_l10n_args('Username: %s', stripslashes($login)),
         get_l10n_args('Password: %s', stripslashes($password)),
         get_l10n_args('Email: %s', $mail_address),
         get_l10n_args('', ''),
         get_l10n_args('If you think you\'ve received this email in error, please contact us at %s', get_webmaster_mail_address()),
         );
-        
+
       pwg_mail(
         $mail_address,
         array(
@@ -273,7 +275,7 @@ SELECT id
         );
     }
 
-    trigger_action(
+    trigger_notify(
       'register_user',
       array(
         'id'=>$user_id,
@@ -281,7 +283,7 @@ SELECT id
         'email'=>$mail_address,
         )
       );
-      
+
     return $user_id;
   }
   else
@@ -426,7 +428,7 @@ SELECT DISTINCT(id)
   FROM '.IMAGES_TABLE.' INNER JOIN '.IMAGE_CATEGORY_TABLE.' ON id=image_id
   WHERE category_id NOT IN ('.$userdata['forbidden_categories'].')
     AND level>'.$userdata['level'];
-      $forbidden_ids = array_from_query($query, 'id');
+      $forbidden_ids = query2array($query,null, 'id');
 
       if ( empty($forbidden_ids) )
       {
@@ -544,14 +546,14 @@ SELECT DISTINCT f.image_id
       'AND'
     ).'
 ;';
-  $authorizeds = array_from_query($query, 'image_id');
+  $authorizeds = query2array($query,null, 'image_id');
 
   $query = '
 SELECT image_id
   FROM '.FAVORITES_TABLE.'
   WHERE user_id = '.$user['id'].'
 ;';
-  $favorites = array_from_query($query, 'image_id');
+  $favorites = query2array($query,null, 'image_id');
 
   $to_deletes = array_diff($favorites, $authorizeds);
   if (count($to_deletes) > 0)
@@ -584,7 +586,7 @@ SELECT id
   FROM '.CATEGORIES_TABLE.'
   WHERE status = \'private\'
 ;';
-  $private_array = array_from_query($query, 'id');
+  $private_array = query2array($query,null, 'id');
 
   // retrieve category ids directly authorized to the user
   $query = '
@@ -592,7 +594,7 @@ SELECT cat_id
   FROM '.USER_ACCESS_TABLE.'
   WHERE user_id = '.$user_id.'
 ;';
-  $authorized_array = array_from_query($query, 'cat_id');
+  $authorized_array = query2array($query,null, 'cat_id');
 
   // retrieve category ids authorized to the groups the user belongs to
   $query = '
@@ -604,7 +606,7 @@ SELECT cat_id
   $authorized_array =
     array_merge(
       $authorized_array,
-      array_from_query($query, 'cat_id')
+      query2array($query,null, 'cat_id')
       );
 
   // uniquify ids : some private categories might be authorized for the
@@ -622,11 +624,7 @@ SELECT id
   FROM '.CATEGORIES_TABLE.'
   WHERE visible = \'false\'
 ;';
-    $result = pwg_query($query);
-    while ($row = pwg_db_fetch_assoc($result))
-    {
-      $forbidden_array[] = $row['id'];
-    }
+    $forbidden_array = array_merge($forbidden_array, query2array($query, null, 'id') );
     $forbidden_array = array_unique($forbidden_array);
   }
 
@@ -868,7 +866,7 @@ function create_user_infos($user_ids, $override_values=null)
         $status = 'webmaster';
         $level = max( $conf['available_permission_levels'] );
       }
-      else if (($user_id == $conf['guest_id']) or
+      elseif (($user_id == $conf['guest_id']) or
                ($user_id == $conf['default_user_id']))
       {
         $status = 'guest';
@@ -939,23 +937,12 @@ function log_user($user_id, $remember_me)
     if ($key!==false)
     {
       $cookie = $user_id.'-'.$now.'-'.$key;
-      if (version_compare(PHP_VERSION, '5.2', '>=') )
-      {
-        setcookie($conf['remember_me_name'],
-            $cookie,
-            time()+$conf['remember_me_length'],
-            cookie_path(),ini_get('session.cookie_domain'),ini_get('session.cookie_secure'),
-            ini_get('session.cookie_httponly')
-          );
-      }
-      else
-      {
-        setcookie($conf['remember_me_name'],
-            $cookie,
-            time()+$conf['remember_me_length'],
-            cookie_path(),ini_get('session.cookie_domain'),ini_get('session.cookie_secure')
-          );
-      }
+      setcookie($conf['remember_me_name'],
+        $cookie,
+        time()+$conf['remember_me_length'],
+        cookie_path(),ini_get('session.cookie_domain'),ini_get('session.cookie_secure'),
+        ini_get('session.cookie_httponly')
+        );
     }
   }
   else
@@ -974,7 +961,7 @@ function log_user($user_id, $remember_me)
   $_SESSION['pwg_uid'] = (int)$user_id;
 
   $user['id'] = $_SESSION['pwg_uid'];
-  trigger_action('user_login', $user['id']);
+  trigger_notify('user_login', $user['id']);
 }
 
 /**
@@ -999,7 +986,7 @@ function auto_login()
       if ($key!==false and $key===$cookie[2])
       {
         log_user($cookie[0], true);
-        trigger_action('login_success', stripslashes($username));
+        trigger_notify('login_success', stripslashes($username));
         return true;
       }
     }
@@ -1065,7 +1052,7 @@ function pwg_password_verify($password, $hash, $user_id=null)
       {
         return true;
       }
-      
+
       // Rehash using new hash.
       $hash = pwg_password_hash($password);
 
@@ -1100,10 +1087,10 @@ function pwg_password_verify($password, $hash, $user_id=null)
  */
 function try_log_user($username, $password, $remember_me)
 {
-  return trigger_event('try_log_user', false, $username, $password, $remember_me);
+  return trigger_change('try_log_user', false, $username, $password, $remember_me);
 }
 
-add_event_handler('try_log_user', 'pwg_login', EVENT_HANDLER_PRIORITY_NEUTRAL, 4);
+add_event_handler('try_log_user', 'pwg_login');
 
 /**
  * Default method for user login, can be overwritten with 'try_log_user' trigger.
@@ -1136,10 +1123,10 @@ SELECT '.$conf['user_fields']['id'].' AS id,
   if ($conf['password_verify']($password, $row['password'], $row['id']))
   {
     log_user($row['id'], $remember_me);
-    trigger_action('login_success', stripslashes($username));
+    trigger_notify('login_success', stripslashes($username));
     return true;
   }
-  trigger_action('login_failure', stripslashes($username));
+  trigger_notify('login_failure', stripslashes($username));
   return false;
 }
 
@@ -1150,7 +1137,7 @@ function logout_user()
 {
   global $conf;
 
-  trigger_action('user_logout', @$_SESSION['pwg_uid']);
+  trigger_notify('user_logout', @$_SESSION['pwg_uid']);
 
   $_SESSION = array();
   session_unset();
@@ -1462,7 +1449,7 @@ function get_sql_condition_FandF(
   return $sql;
 }
 
-/** 
+/**
  * Returns sql WHERE condition for recent photos/albums for current user.
  *
  * @param string $db_field
@@ -1479,28 +1466,4 @@ function get_recent_photos_sql($db_field)
     .pwg_db_get_recent_period_expression($user['recent_period'])
     .','.pwg_db_get_recent_period_expression(1,$user['last_photo_date']).')';
 }
-
-/**
- * Returns a unique activation key.
- *
- * @return string
- */
-function get_user_activation_key()
-{
-  while (true)
-  {
-    $key = generate_key(20);
-    $query = '
-SELECT COUNT(*)
-  FROM '.USER_INFOS_TABLE.'
-  WHERE activation_key = \''.$key.'\'
-;';
-    list($count) = pwg_db_fetch_row(pwg_query($query));
-    if (0 == $count)
-    {
-      return $key;
-    }
-  }
-}
-
 ?>

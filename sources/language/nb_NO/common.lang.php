@@ -21,8 +21,8 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 /*
-Language Name: Norwegian [NO]
-Version: 2.6.0
+Language Name: Norsk bokmål [NO]
+Version: 2.7.2
 Language URI: http://piwigo.org/ext/extension_view.php?eid=483
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -418,4 +418,10 @@ $lang['Password is missing. Please enter the password.'] = 'Passord mangler. Ven
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Passord bekreftelse mangler. Vennligst bekreft det valgte passord.';
 $lang['%d photos per page'] = '%d bilder pr side';
 $lang['Theme'] = 'Tema';
-?>
+$lang['No results for'] = 'Ingen resultater for';
+$lang['Apply on properties'] = 'Angi egenskaper';
+$lang['Photo description'] = 'Bildebeskrivelse';
+$lang['Photo title'] = 'Bildetittel';
+$lang['Album name, A &rarr; Z'] = 'Albumnavn, A %rarr; Å';
+$lang['Album name, Z &rarr; A'] = 'Albumnavn, Å %rarr; A';
+$lang['Link: %s'] = 'Lenke: %s';

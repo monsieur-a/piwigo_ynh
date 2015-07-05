@@ -38,4 +38,18 @@ $lang['locfiledit_model'] = 'மாதிரி';
 $lang['locfiledit_model_error'] = 'நீங்கள் ஒரு மாதிரி தேர்வு செய்ய வேண்டும்.';
 $lang['locfiledit_new_filename'] = 'கோப்பு பெயர்';
 $lang['locfiledit_new_tpl'] = 'புதிய கோப்பு உருவாக்க';
-?>
+$lang['locfiledit_save_config'] = 'கோப்பு வெற்றிகரமாக எழுதப்பட்டது.';
+$lang['locfiledit_save_file'] = 'கோப்பை இவ்வாறு சேமி';
+$lang['locfiledit_restore'] = 'கோப்பினை மீட்க மறுபிரதி';
+$lang['locfiledit_newfile'] = 'சில தகவல்கள் உள்ளிட்ட வரையில் கோப்பு இல்லை கீழே.
+ஒருமுறை தகவல்களை உள்ளிட்ட மற்றும் சேமிக்க 
+கோப்பு உருவாக்கப்படும்.';
+$lang['locfiledit_parent_directory'] = 'மூல  அடைவு';
+$lang['locfiledit_onglet_css'] = 'css';
+$lang['locfiledit_webmaster_only'] = 'வலைத்தலைமைகள் மட்டுமே ,உருவாக்க அல்லது உள் கோப்புகளை மாற்ற முடியும்.';
+$lang['locfiledit_syntax_error'] = 'தொடரியல் பிழை! கோப்பு சேமிக்க முடியாது ';
+$lang['locfiledit_show_default'] = 'காண்பி குறிப்பு கோப்பு:';
+$lang['locfiledit_saved_bak'] = 'காப்பு கோப்பு உருவாக்கப்பட்டது (%s).';
+$lang['locfiledit_restore_confirm'] = 'தயவுசெய்து உறுதிப்படுத்தவும்?
+அடுத்து சேமிக்கும் வரை பயனுள்ளதாக இருக்க முடியாது மீட்டெடு.';
+$lang['locfiledit_save_bak'] = 'மறுபிரதி நகல் சேமிக்க செய்தபோது உருவாக்கப்பட்டது';

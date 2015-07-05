@@ -53,15 +53,15 @@
 //
 // $conf['order_by_inside_category_custom'] = $conf['order_by_custom'];
 
-// file_ext : file extensions (case sensitive) authorized
-$conf['file_ext'] = array('jpg','JPG','jpeg','JPEG',
-                          'png','PNG','gif','GIF','mpg','zip',
-                          'avi','mp3','ogg');
-
 // picture_ext : file extensions for picture file, must be a subset of
 // file_ext
-$conf['picture_ext'] = array('jpg','JPG','jpeg','JPEG',
-                             'png','PNG','gif','GIF');
+$conf['picture_ext'] = array('jpg','JPG','jpeg','JPEG','png','PNG','gif','GIF');
+
+// file_ext : file extensions (case sensitive) authorized
+$conf['file_ext'] = array_merge(
+  $conf['picture_ext'],
+  array('tiff', 'tif', 'mpg','zip','avi','mp3','ogg','pdf')
+  );
 
 // top_number : number of element to display for "best rated" and "most
 // visited" categories
@@ -221,10 +221,6 @@ $conf['representative_cache_on_subcats'] = true;
 // allow_html_descriptions : authorize administrators to use HTML in
 // category and element description.
 $conf['allow_html_descriptions'] = true;
-
-// users_page: how many users to display in screen
-// Administration>Identification>Users?
-$conf['users_page'] = 20;
 
 // image level permissions available in the admin interface
 $conf['available_permission_levels'] = array(0,1,2,4,8);
@@ -439,7 +435,7 @@ $conf['debug_mail'] = false;
 $conf['die_on_sql_error'] = false;
 
 // if true, some language strings are replaced during template compilation
-// (insted of template output). this results in better performance. however
+// (instead of template output). this results in better performance. however
 // any change in the language file will not be propagated until you purge
 // the compiled templates from the admin / maintenance menu
 $conf['compiled_template_cache_language'] = false;
@@ -759,6 +755,9 @@ $conf['enable_synchronization'] = true;
 // permitted characters for files/directoris during synchronization
 $conf['sync_chars_regex'] = '/^[a-zA-Z0-9-_.]+$/';
 
+// folders name exluded during synchronization
+$conf['sync_exclude_folders'] = array();
+
 // PEM url (default is http://piwigo.org/ext)
 $conf['alternative_pem_url'] = '';
 
@@ -799,4 +798,14 @@ $conf['inheritance_by_default'] = false;
 // 'png' or 'jpg': your uploaded TIF photos will have a representative in
 // JPEG or PNG file format
 $conf['tiff_representative_ext'] = 'png';
+
+// in the upload form, let users upload only picture_exts or all file_exts?
+// for some file types, Piwigo will try to generate a pwg_representative
+// (TIFF, videos, PDF)
+$conf['upload_form_all_types'] = false;
+
+// If we try to generate a pwg_representative for a video we use ffmpeg. If
+// "ffmpeg" is not visible by the web user, you can define the full path of
+// the directory where "ffmpeg" executable is.
+$conf['ffmpeg_dir'] = '';
 ?>

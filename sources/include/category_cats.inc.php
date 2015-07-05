@@ -133,14 +133,13 @@ SELECT representative_picture_id
 
 if ($conf['display_fromto'])
 {
-  $dates_of_category = array();
   if (count($category_ids) > 0)
   {
     $query = '
 SELECT
     category_id,
-    MIN(date_creation) AS date_creation_min,
-    MAX(date_creation) AS date_creation_max
+    MIN(date_creation) AS `from`,
+    MAX(date_creation) AS `to`
   FROM '.IMAGE_CATEGORY_TABLE.'
     INNER JOIN '.IMAGES_TABLE.' ON image_id = id
   WHERE category_id IN ('.implode(',', $category_ids).')
@@ -155,14 +154,7 @@ SELECT
   ).'
   GROUP BY category_id
 ;';
-    $result = pwg_query($query);
-    while ($row = pwg_db_fetch_assoc($result))
-    {
-      $dates_of_category[ $row['category_id'] ] = array(
-        'from' => $row['date_creation_min'],
-        'to'   => $row['date_creation_max'],
-        );
-    }
+    $dates_of_category = query2array($query, 'category_id');
   }
 }
 
@@ -277,7 +269,7 @@ if (count($categories) > 0)
 
   $template->set_filename('index_category_thumbnails', 'mainpage_categories.tpl');
 
-  trigger_action('loc_begin_index_category_thumbnails', $categories);
+  trigger_notify('loc_begin_index_category_thumbnails', $categories);
 
   $tpl_thumbnails_var = array();
 
@@ -288,7 +280,7 @@ if (count($categories) > 0)
       continue;
     }
 
-    $category['name'] = trigger_event(
+    $category['name'] = trigger_change(
         'render_category_name',
         $category['name'],
         'subcatify_category_name'
@@ -324,8 +316,8 @@ if (count($categories) > 0)
                                     '<br>'
                                   ),
           'DESCRIPTION' =>
-            trigger_event('render_category_literal_description',
-              trigger_event('render_category_description',
+            trigger_change('render_category_literal_description',
+              trigger_change('render_category_description',
                 @$category['comment'],
                 'subcatify_category_description')),
           'NAME'  => $name,
@@ -344,24 +336,10 @@ if (count($categories) > 0)
 
         if (!empty($from))
         {
-          $info = '';
-
-          if (date('Y-m-d', strtotime($from)) == date('Y-m-d', strtotime($to)))
-          {
-            $info = format_date($from);
-          }
-          else
-          {
-            $info = l10n(
-              'from %s to %s',
-              format_date($from),
-              format_date($to)
-              );
-          }
-          $tpl_var['INFO_DATES'] = $info;
+          $tpl_var['INFO_DATES'] = format_fromto($from, $to);
         }
       }
-    }//fromto
+    }
 
     $tpl_thumbnails_var[] = $tpl_var;
   }
@@ -375,8 +353,8 @@ if (count($categories) > 0)
     $conf['nb_categories_page']
     );
 
-  $derivative_params = trigger_event('get_index_album_derivative_params', ImageStdParams::get_by_type(IMG_THUMB) );
-  $tpl_thumbnails_var_selection = trigger_event('loc_end_index_category_thumbnails', $tpl_thumbnails_var_selection);
+  $derivative_params = trigger_change('get_index_album_derivative_params', ImageStdParams::get_by_type(IMG_THUMB) );
+  $tpl_thumbnails_var_selection = trigger_change('loc_end_index_category_thumbnails', $tpl_thumbnails_var_selection);
   $template->assign( array(
     'maxRequests' =>$conf['max_requests'],
     'category_thumbnails' => $tpl_thumbnails_var_selection,

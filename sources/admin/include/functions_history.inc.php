@@ -21,8 +21,17 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
+/**
+ * @package functions\admin\history
+ */
+
+
 include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
 
+/**
+ * Init tabsheet for history pages
+ * @ignore
+ */
 function history_tabsheet()
 {
   global $page, $link_start;
@@ -34,11 +43,22 @@ function history_tabsheet()
   $tabsheet->assign();
 }
 
+/**
+ * Callback used to sort history entries
+ */
 function history_compare($a, $b)
 {
   return strcmp($a['date'].$a['time'], $b['date'].$b['time']);
 }
 
+/**
+ * Perform history search.
+ *
+ * @param array $data  - used in trigger_change
+ * @param array $search
+ * @param string[] $types
+ * @param array
+ */
 function get_history($data, $search, $types)
 {
   if (isset($search['fields']['filename']))
@@ -51,9 +71,9 @@ SELECT
 ;';
     $search['image_ids'] = array_from_query($query, 'id');
   }
-  
+
   // echo '<pre>'; print_r($search); echo '</pre>';
-  
+
   $clauses = array();
 
   if (isset($search['fields']['date-after']))
@@ -69,7 +89,7 @@ SELECT
   if (isset($search['fields']['types']))
   {
     $local_clauses = array();
-    
+
     foreach ($types as $type) {
       if (in_array($type, $search['fields']['types'])) {
         $clause = 'image_type ';
@@ -81,11 +101,11 @@ SELECT
         {
           $clause.= "= '".$type."'";
         }
-        
+
         $local_clauses[] = $clause;
       }
     }
-    
+
     if (count($local_clauses) > 0)
     {
       $clauses[] = implode(' OR ', $local_clauses);
@@ -102,7 +122,7 @@ SELECT
   {
     $clauses[] = 'image_id = '.$search['fields']['image_id'];
   }
-  
+
   if (isset($search['fields']['filename']))
   {
     if (count($search['image_ids']) == 0)
@@ -120,7 +140,7 @@ SELECT
   {
     $clauses[] = 'IP LIKE "'.$search['fields']['ip'].'"';
   }
-  
+
   $clauses = prepend_append_array_items($clauses, '(', ')');
 
   $where_separator =
@@ -128,7 +148,7 @@ SELECT
       "\n    AND ",
       $clauses
       );
-  
+
   $query = '
 SELECT
     date,
@@ -156,7 +176,7 @@ SELECT
   return $data;
 }
 
-add_event_handler('get_history', 'get_history', EVENT_HANDLER_PRIORITY_NEUTRAL, 3);
-trigger_action('functions_history_included');
+add_event_handler('get_history', 'get_history');
+trigger_notify('functions_history_included');
 
 ?>

@@ -114,7 +114,7 @@
 }
 
 /* category and tag results paragraphs on a quick search */
-.category_search_results, .tag_search_results {
+.search_results {
   font-size: 16px;
   margin: 10px 16px;
 }
@@ -493,11 +493,6 @@ FORM P {
 	margin-bottom: 2em;
 }
 
-SELECT.categoryList {
-	height: 20em;
-	width: 500px;
-}
-
 
 /**
  * Filter forms are displayed label by label with the input (or select...)
@@ -507,14 +502,12 @@ SELECT.categoryList {
 FIELDSET {
 	padding: 1em;
 	margin: 1em;
-	overflow: hidden; /* <- makes Opera happy */
 }
 
-.filter UL,
-.filter LABEL {
+.filter UL {
 	display: block;
 	float: left;
-	margin-right: 1em;
+	margin: 0 1em 1em 0;
 	padding: 0;
 }
 
@@ -523,23 +516,33 @@ FIELDSET {
 	margin-bottom: 0.5em;
 }
 
-.filter LI LABEL {
-	display: inline;
-	float: none;
+.filter FIELDSET {
+  padding-bottom:0;
 }
 
-/*IE6 needs override because of > selector*/
-.filter LABEL>INPUT,
-.filter LABEL>SELECT {
-	display: block;
-	margin: 0.5em 0;
+.filter P {
+  text-align:left;
+  margin:0 0 15px 0;
+  line-height:20px;
 }
 
-.filter FIELDSET * LABEL>INPUT {
-	display: inline;
-	vertical-align: top;
-	margin: 0 0.5em 0 0;
+.filter input[name="search_allwords"], .filter #authors, .filter #tags {
+  width:500px;
 }
+
+.filter P input[type="checkbox"], .filter P input[type="radio"] {
+  vertical-align:middle;
+  margin-top:-4px;
+}
+
+.filter input[type="submit"] {
+  margin-left:1em;
+}
+
+.filter P LABEL {
+  margin-right:1em;
+}
+
 
 
 .properties UL {
@@ -562,17 +565,6 @@ FIELDSET {
 	text-align: right;
 	margin: 0;
 	padding: 0 0.5em 0 0;
-}
-
-.tagSelection {
-	margin: 1em 0 !important;
-}
-
-.tagSelection LI {
-	display:inline-block;
-	width: 150px;
-	overflow:hidden;
-	white-space: nowrap;
 }
 
 #fullTagCloud {
@@ -781,3 +773,8 @@ LEGEND {
 .imageInfo {display:table-row; line-height:20px;}
 .imageInfo dt {display:table-cell; text-align:right; font-weight:bold; padding-right:0.5em;}
 .imageInfo dd {display:table-cell; text-align:left; font-weight:normal;}
+
+/* Selectize */
+.selectize-dropdown [data-selectable], .selectize-dropdown .optgroup-header {
+    padding: 0px 5px !important;
+}

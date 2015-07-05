@@ -39,6 +39,7 @@ function rate_picture($image_id, $rate)
 
   if (!isset($rate)
       or !$conf['rate']
+      or !preg_match('/^[0-9]+$/', $rate)
       or !in_array($rate, $conf['rate_items']))
   {
     return false;
@@ -136,7 +137,7 @@ INSERT
 */
 function update_rating_score($element_id = false)
 {
-  if ( ($alt_result = trigger_event('update_rating_score', false, $element_id)) !== false)
+  if ( ($alt_result = trigger_change('update_rating_score', false, $element_id)) !== false)
   {
     return $alt_result;
   }

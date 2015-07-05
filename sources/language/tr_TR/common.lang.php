@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Türkçe [TR]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=436
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -418,4 +418,11 @@ $lang['Password is missing. Please enter the password.'] = 'Şifre eksik. Lütfe
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Şifre doğrulama eksik. Lütfen seçtiğiniz şifreyi doğrulayın.';
 $lang['%d photos per page'] = 'sayfa başına %d fotoğraf';
 $lang['Theme'] = 'Tema';
-?>
+$lang['No results for'] = 'Sonuç bulunamadı:';
+$lang['Photo description'] = 'Fotoğraf açıklamaları';
+$lang['Photo title'] = 'Fotoğraf başlığı';
+$lang['Apply on properties'] = 'Niteliklerine uygula';
+$lang['Album name, A &rarr; Z'] = 'Albüm adı, A &rarr; Z';
+$lang['Album name, Z &rarr; A'] = '
+Albüm adı, Z &rarr; A';
+$lang['Link: %s'] = 'Bağlantı: %s';

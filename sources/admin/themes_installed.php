@@ -91,6 +91,7 @@ foreach ($themes->fs_themes as $theme_id => $fs_theme)
   if (in_array($theme_id, $db_theme_ids))
   {
     $tpl_theme['STATE'] = 'active';
+    $tpl_theme['IS_DEFAULT'] = ($theme_id == $default_theme);
     $tpl_theme['DEACTIVABLE'] = true;
 
     if (count($db_theme_ids) <= 1)
@@ -98,8 +99,11 @@ foreach ($themes->fs_themes as $theme_id => $fs_theme)
       $tpl_theme['DEACTIVABLE'] = false;
       $tpl_theme['DEACTIVATE_TOOLTIP'] = l10n('Impossible to deactivate this theme, you need at least one theme.');
     }
-    
-    $tpl_theme['IS_DEFAULT'] = ($theme_id == $default_theme);
+    if ($tpl_theme['IS_DEFAULT'])
+    {
+      $tpl_theme['DEACTIVABLE'] = false;
+      $tpl_theme['DEACTIVATE_TOOLTIP'] = l10n('Impossible to deactivate the default theme.');
+    }
   }
   else
   {
@@ -172,6 +176,7 @@ $template->assign(
     )
   );
 
+trigger_notify('loc_end_themes_installed');
 
 $template->set_filenames(array('themes' => 'themes_installed.tpl'));
 $template->assign_var_from_handle('ADMIN_CONTENT', 'themes');

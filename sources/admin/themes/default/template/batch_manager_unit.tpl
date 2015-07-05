@@ -2,25 +2,35 @@
 {include file='include/datepicker.inc.tpl'}
 {include file='include/colorbox.inc.tpl'}
 
-{combine_css path='themes/default/js/plugins/jquery.tokeninput.css'}
-{combine_script id='jquery.tokeninput' load='async' require='jquery' path='themes/default/js/plugins/jquery.tokeninput.js'}
-{footer_script require='jquery.tokeninput'}
-jQuery(document).ready(function() {ldelim}
-	jQuery('select[name|="tags"]').tokenInput(
-		[{foreach from=$tags item=tag name=tags}{ldelim}name:"{$tag.name|@escape:'javascript'}",id:"{$tag.id}"{rdelim}{if !$smarty.foreach.tags.last},{/if}{/foreach}],
-    {ldelim}
-      hintText: '{'Type in a search term'|@translate}',
-      noResultsText: '{'No results'|@translate}',
-      searchingText: '{'Searching...'|@translate}',
-      newText: ' ({'new'|@translate})',
-      animateDropdown: false,
-      preventDuplicates: true,
-      allowFreeTagging: true
-    }
-  );
+{combine_script id='LocalStorageCache' load='footer' path='admin/themes/default/js/LocalStorageCache.js'}
 
-  jQuery("a.preview-box").colorbox();
+{combine_script id='jquery.selectize' load='footer' path='themes/default/js/plugins/selectize.min.js'}
+{combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.{$themeconf.colorscheme}.css"}
+
+{footer_script}
+(function(){
+{* <!-- TAGS --> *}
+var tagsCache = new TagsCache({
+  serverKey: '{$CACHE_KEYS.tags}',
+  serverId: '{$CACHE_KEYS._hash}',
+  rootUrl: '{$ROOT_URL}'
 });
+
+tagsCache.selectize(jQuery('[data-selectize=tags]'), { lang: {
+  'Add': '{'Create'|translate}'
+}});
+
+{* <!-- DATEPICKER --> *}
+jQuery(function(){ {* <!-- onLoad needed to wait localization loads --> *}
+  jQuery('[data-datepicker]').pwgDatepicker({
+    showTimepicker: true,
+    cancelButton: '{'Cancel'|translate}'
+  });
+});
+
+{* <!-- THUMBNAILS --> *}
+jQuery("a.preview-box").colorbox();
+}());
 {/footer_script}
 
 <h2>{'Batch Manager'|@translate}</h2>
@@ -32,7 +42,6 @@ jQuery(document).ready(function() {ldelim}
       <a href="{$U_ELEMENTS_PAGE}&amp;display=5">5</a>
     | <a href="{$U_ELEMENTS_PAGE}&amp;display=10">10</a>
     | <a href="{$U_ELEMENTS_PAGE}&amp;display=50">50</a>
-    | <a href="{$U_ELEMENTS_PAGE}&amp;display=all">{'all'|@translate}</a>
   </p>
 
 </fieldset>
@@ -46,9 +55,8 @@ jQuery(document).ready(function() {ldelim}
   <legend>{$element.LEGEND}</legend>
 
   <span class="thumb">
-    <a href="{$element.FILE_SRC}" class="preview-box" title="{$element.LEGEND|@htmlspecialchars}"><img src="{$element.TN_SRC}" alt=""></a>
-    <br/>
-    <a href="{$element.U_EDIT}">{'Edit'|@translate}</a>
+    <a href="{$element.FILE_SRC}" class="preview-box icon-zoom-in" title="{$element.LEGEND|@htmlspecialchars}"><img src="{$element.TN_SRC}" alt=""></a>
+    <a href="{$element.U_EDIT}" class="icon-pencil">{'Edit'|@translate}</a>
   </span>
 
   <table>
@@ -66,28 +74,12 @@ jQuery(document).ready(function() {ldelim}
     <tr>
       <td><strong>{'Creation date'|@translate}</strong></td>
       <td>
-        <label><input type="radio" name="date_creation_action-{$element.id}" value="unset"> {'unset'|@translate}</label>
-        <label><input type="radio" name="date_creation_action-{$element.id}" value="set" id="date_creation_action_set-{$element.id}"> {'set to'|@translate}</label>
-
-        <select id="date_creation_day-{$element.id}" name="date_creation_day-{$element.id}">
-         	<option value="0">--</option>
-           {section name=day start=1 loop=32}
-             <option value="{$smarty.section.day.index}" {if $smarty.section.day.index==$element.DATE_CREATION_DAY}selected="selected"{/if}>{$smarty.section.day.index}</option>
-           {/section}
-        </select>
-        <select id="date_creation_month-{$element.id}" name="date_creation_month-{$element.id}">
-          {html_options options=$month_list selected=$element.DATE_CREATION_MONTH}
-        </select>
-        <input id="date_creation_year-{$element.id}"
-               name="date_creation_year-{$element.id}"
-               type="text"
-               size="4"
-               maxlength="4"
-               value="{$element.DATE_CREATION_YEAR}">
-        <input id="date_creation_linked_date-{$element.id}" name="date_creation_linked_date-{$element.id}" type="hidden" size="10" disabled="disabled">
-        {footer_script}
-          pwg_initialization_datepicker("#date_creation_day-{$element.id}", "#date_creation_month-{$element.id}", "#date_creation_year-{$element.id}", "#date_creation_linked_date-{$element.id}", "#date_creation_action_set-{$element.id}");
-        {/footer_script}
+        <input type="hidden" name="date_creation-{$element.id}" value="{$element.DATE_CREATION}">
+        <label>
+          <i class="icon-calendar"></i>
+          <input type="text" data-datepicker="date_creation-{$element.id}" data-datepicker-unset="date_creation_unset-{$element.id}" readonly>
+        </label>
+        <a href="#" class="icon-cancel-circled" id="date_creation_unset-{$element.id}">{'unset'|translate}</a>
       </td>
     </tr>
     <tr>
@@ -102,13 +94,9 @@ jQuery(document).ready(function() {ldelim}
     <tr>
       <td><strong>{'Tags'|@translate}</strong></td>
       <td>
-
-<select name="tags-{$element.id}">
-{foreach from=$element.TAGS item=tag}
-  <option value="{$tag.id}" class="selected">{$tag.name}</option>
-{/foreach}
-</select>
-
+        <select data-selectize="tags" data-value="{$element.TAGS|@json_encode|escape:html}"
+          placeholder="{'Type in a search term'|translate}"
+          data-create="true" name="tags-{$element.id}[]" multiple style="width:500px;"></select>
       </td>
     </tr>
 
@@ -131,15 +119,3 @@ jQuery(document).ready(function() {ldelim}
 {/if}
 
 </form>
-
-{footer_script}
-{literal}$(document).ready(function() {
-	$(".elementEdit img")
-		.fadeTo("slow", 0.6) // Opacity on page load
-		.hover(function(){
-			$(this).fadeTo("slow", 1.0); // Opacity on hover
-		},function(){
-   		$(this).fadeTo("slow", 0.6); // Opacity on mouseout
-		});
-});{/literal}
-{/footer_script}

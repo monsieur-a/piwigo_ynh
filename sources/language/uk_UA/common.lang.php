@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Українська [UA]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=523
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -33,6 +33,8 @@ $lang_info['language_name'] = "Українська";
 $lang_info['country'] = "Україна";
 $lang_info['direction'] = "ltr";
 $lang_info['code'] = "ua";
+$lang_info['jquery_code'] = "uk";
+$lang_info['plupload_code'] = "uk_UA";
 $lang_info['zero_plural'] = true;
 
 $lang['%d album updated'] = '%d альбом оновлено';
@@ -418,4 +420,10 @@ $lang['Password is missing. Please enter the password.'] = 'Пароль від�
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Відсутнє підтвердження пароля. Будь ласка, підтвердіть вибраний пароль.';
 $lang['%d photos per page'] = '%d зображень на сторінці';
 $lang['Theme'] = 'Тема';
-?>
+$lang['No results for'] = 'Нічого не знайдено для';
+$lang['Apply on properties'] = 'Застосувати на властивості';
+$lang['Photo description'] = 'Опис фотографії';
+$lang['Photo title'] = 'Назва фотографії';
+$lang['Album name, A &rarr; Z'] = 'Назва альбому, А &rarr; Я';
+$lang['Album name, Z &rarr; A'] = 'Назва альбому, Я &rarr; А';
+$lang['Link: %s'] = 'Посилання: %s';

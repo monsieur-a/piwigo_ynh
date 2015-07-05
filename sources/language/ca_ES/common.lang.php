@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Català [CA]
-Version: 2.6.1
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=413
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -418,4 +418,10 @@ $lang['Password is missing. Please enter the password.'] = 'Falta la clau d\'acc
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Falta confirmar la contrasenya. Si us plau, confirmeu la contrasenya escollida.';
 $lang['%d photos per page'] = '%d fotos per pàgina';
 $lang['Theme'] = 'Tema';
-?>
+$lang['No results for'] = 'No s\'ha trobat resultats per';
+$lang['Apply on properties'] = 'Aplicar a propietats';
+$lang['Photo description'] = 'Descripció de la foto';
+$lang['Photo title'] = 'Títol de la foto';
+$lang['Album name, A &rarr; Z'] = 'Nom de l\'àlbum, a &rarr; Z';
+$lang['Album name, Z &rarr; A'] = 'Nom de l\'àlbum, Z &rarr; A';
+$lang['Link: %s'] = 'Enllaç: %s';

@@ -135,16 +135,21 @@ if ( isset($_GET['metadata']) )
 }
 
 // add default event handler for rendering element content
-add_event_handler(
-  'render_element_content',
-  'default_picture_content',
-  EVENT_HANDLER_PRIORITY_NEUTRAL,
-  2
-  );
+add_event_handler('render_element_content', 'default_picture_content');
 // add default event handler for rendering element description
-add_event_handler('render_element_description', 'nl2br');
+add_event_handler('render_element_description', 'pwg_nl2br');
 
-trigger_action('loc_begin_picture');
+/**
+ * pwg_nl2br is useful for PHP 5.2 which doesn't accept more than 1
+ * parameter on nl2br() (and anyway the second parameter of nl2br does not
+ * match what Piwigo gives.
+ */
+function pwg_nl2br($string)
+{
+  return nl2br($string);
+}
+
+trigger_notify('loc_begin_picture');
 
 // this is the default handler that generates the display for the element
 function default_picture_content($content, $element_info)
@@ -417,28 +422,30 @@ UPDATE '.CATEGORIES_TABLE.'
 
 
 //---------- incrementation of the number of hits
+$inc_hit_count = !isset($_POST['content']);
 // don't increment counter if in the Mozilla Firefox prefetch
 if (isset($_SERVER['HTTP_X_MOZ']) and $_SERVER['HTTP_X_MOZ'] == 'prefetch')
 {
-  add_event_handler('allow_increment_element_hit_count', create_function('$b', 'return false;'));
+  $inc_hit_count = false;
 }
 else
 {
   // don't increment counter if comming from the same picture (actions)
   if (pwg_get_session_var('referer_image_id',0) == $page['image_id'])
   {
-    add_event_handler('allow_increment_element_hit_count', create_function('$b', 'return false;'));
+    $inc_hit_count = false;
   }
   pwg_set_session_var('referer_image_id', $page['image_id']);
 }
 
 // don't increment if adding a comment
-if (trigger_event('allow_increment_element_hit_count', !isset($_POST['content']) ) )
+if (trigger_change('allow_increment_element_hit_count', $inc_hit_count, $page['image_id'] ) )
 {
+  // avoiding auto update of "lastmodified" field
   $query = '
 UPDATE
   '.IMAGES_TABLE.'
-  SET hit = hit+1
+  SET hit = hit+1, lastmodified = lastmodified
   WHERE id = '.$page['image_id'].'
 ;';
   pwg_query($query);
@@ -613,7 +620,7 @@ $url_metadata = add_url_params( $url_metadata, array('metadata'=>null) );
 
 
 // do we have a plugin that can show metadata for something else than images?
-$metadata_showable = trigger_event(
+$metadata_showable = trigger_change(
   'get_element_metadata_available',
   (
     ($conf['show_exif'] or $conf['show_iptc'])
@@ -631,7 +638,7 @@ if ( $metadata_showable and pwg_get_session_var('show_metadata') )
 $page['body_id'] = 'thePicturePage';
 
 // allow plugins to change what we computed before passing data to template
-$picture = trigger_event('picture_pictures_data', $picture);
+$picture = trigger_change('picture_pictures_data', $picture);
 
 //------------------------------------------------------- navigation management
 foreach (array('first','previous','next','last', 'current') as $which_image)
@@ -643,7 +650,6 @@ foreach (array('first','previous','next','last', 'current') as $which_image)
       array_merge(
         $picture[$which_image],
         array(
-          'THUMB_SRC' => $picture[$which_image]['derivatives'][IMG_THUMB]->get_url(),
           // Params slideshow was transmit to navigation buttons
           'U_IMG' =>
             add_url_params(
@@ -807,7 +813,7 @@ if (isset($picture['current']['comment'])
 {
   $template->assign(
       'COMMENT_IMG',
-        trigger_event('render_element_description',
+        trigger_change('render_element_description',
           $picture['current']['comment'],
           'picture_page_element_description'
           )
@@ -936,7 +942,7 @@ SELECT id, name, permalink
 
 // maybe someone wants a special display (call it before page_header so that
 // they can add stylesheets)
-$element_content = trigger_event(
+$element_content = trigger_change(
   'render_element_content',
   '',
   $picture['current']
@@ -946,7 +952,7 @@ $template->assign( 'ELEMENT_CONTENT', $element_content );
 if (isset($picture['next'])
     and $picture['next']['src_image']->is_original()
     and $template->get_template_vars('U_PREFETCH') == null
-    and strpos($_SERVER['HTTP_USER_AGENT'], 'Chrome/') === false)
+    and strpos(@$_SERVER['HTTP_USER_AGENT'], 'Chrome/') === false)
 {
   $template->assign(
     'U_PREFETCH',
@@ -986,7 +992,7 @@ if ($conf['picture_menu'] AND (!isset($themeconf['hide_menu_on']) OR !in_array('
 }
 
 include(PHPWG_ROOT_PATH.'include/page_header.php');
-trigger_action('loc_end_picture');
+trigger_notify('loc_end_picture');
 flush_page_messages();
 if ($page['slideshow'] and $conf['light_slideshow'])
 {

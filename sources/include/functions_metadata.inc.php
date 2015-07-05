@@ -33,7 +33,7 @@
  * @param array $map
  * @return array
  */
-function get_iptc_data($filename, $map)
+function get_iptc_data($filename, $map, $array_sep=',')
 {
   global $conf;
   
@@ -57,7 +57,7 @@ function get_iptc_data($filename, $map)
         {
           if ($iptc_key == '2#025')
           {
-            $value = implode(',',
+            $value = implode($array_sep,
                              array_map('clean_iptc_value',$iptc[$iptc_key]));
           }
           else
@@ -104,7 +104,7 @@ function clean_iptc_value($value)
   {
     // apparently mac uses some MacRoman crap encoding. I don't know
     // how to detect it so a plugin should do the trick.
-    $value = trigger_event('clean_iptc_value', $value);
+    $value = trigger_change('clean_iptc_value', $value);
     if ( ($qual = qualify_utf8($value)) != 0)
     {// has non ascii chars
       if ($qual>0)
@@ -150,9 +150,16 @@ function get_exif_data($filename, $map)
   }
 
   // Read EXIF data
-  if ($exif = @read_exif_data($filename))
+  if ($exif = @read_exif_data($filename) or $exif2 = trigger_change('format_exif_data', $exif=null, $filename, $map))
   {
-    $exif = trigger_event('format_exif_data', $exif, $filename, $map);
+    if (!empty($exif2))
+    {
+      $exif = $exif2;
+    }
+    else
+    {
+      $exif = trigger_change('format_exif_data', $exif, $filename, $map);
+    }
 
     // configured fields
     foreach ($map as $key => $field)

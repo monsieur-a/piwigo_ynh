@@ -72,12 +72,10 @@ $header_msgs = array();
 $header_notes = array();
 $filter = array();
 
-foreach( array(
-  'array_intersect_key', //PHP 5 >= 5.1.0RC1
-  'hash_hmac', //(hash) - enabled by default as of PHP 5.1.2
-  'preg_last_error', // PHP 5 >= 5.2.0
-  'json_encode', // PHP 5 >= 5.2.0
-  ) as $func)
+foreach(
+  array(
+    'gzopen'
+    ) as $func)
 {
   if (!function_exists($func))
   {
@@ -107,6 +105,7 @@ if(isset($conf['show_php_errors']) && !empty($conf['show_php_errors']))
 include(PHPWG_ROOT_PATH . 'include/constants.php');
 include(PHPWG_ROOT_PATH . 'include/functions.inc.php');
 
+$persistent_cache = new PersistentFileCache();
 
 // Database connection
 try
@@ -178,7 +177,7 @@ if ( is_admin() || (defined('IN_ADMIN') and IN_ADMIN) )
 {
   load_language('admin.lang');
 }
-trigger_action('loading_lang');
+trigger_notify('loading_lang');
 load_language('lang', PHPWG_ROOT_PATH.PWG_LOCAL_DIR, array('no_fallback'=>true, 'local'=>true) );
 
 // only now we can set the localized username of the guest user (and not in
@@ -272,8 +271,8 @@ add_event_handler('render_tag_url', 'str2url');
 add_event_handler('blockmanager_register_blocks', 'register_default_menubar_blocks', EVENT_HANDLER_PRIORITY_NEUTRAL-1);
 if ( !empty($conf['original_url_protection']) )
 {
-  add_event_handler('get_element_url', 'get_element_url_protection_handler', EVENT_HANDLER_PRIORITY_NEUTRAL, 2 );
-  add_event_handler('get_src_image_url', 'get_src_image_url_protection_handler', EVENT_HANDLER_PRIORITY_NEUTRAL, 2 );
+  add_event_handler('get_element_url', 'get_element_url_protection_handler');
+  add_event_handler('get_src_image_url', 'get_src_image_url_protection_handler');
 }
-trigger_action('init');
+trigger_notify('init');
 ?>

@@ -76,6 +76,7 @@ $comments_checkboxes = array(
     'email_admin_on_comment_deletion',
     'comments_author_mandatory',
     'comments_email_mandatory',
+    'comments_enable_website',
   );
 
 $display_checkboxes = array(
@@ -298,7 +299,7 @@ if ('sizes' == $page['section'] and isset($_GET['action']) and 'restore_settings
 }
 
 //----------------------------------------------------- template initialization
-$template->set_filename('config', 'configuration.tpl');
+$template->set_filename('config', 'configuration_' . $page['section'] . '.tpl');
 
 // TabSheet
 $tabsheet = new tabsheet();
@@ -418,7 +419,8 @@ switch ($page['section'])
     load_profile_in_template(
       $action,
       '',
-      $edit_user
+      $edit_user,
+      'GUEST_'
       );
     $template->assign('default', array());
     break;
@@ -487,7 +489,7 @@ switch ($page['section'])
         $tpl_var = array();
 
         $tpl_var['must_square'] = ($type==IMG_SQUARE ? true : false);
-        $tpl_var['must_enable'] = ($type==IMG_SQUARE || $type==IMG_THUMB)? true : false;
+        $tpl_var['must_enable'] = ($type==IMG_SQUARE || $type==IMG_THUMB || $type==$conf['derivative_default_size'])? true : false;
 
         if ($params = @$enabled[$type])
         {

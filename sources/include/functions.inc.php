@@ -1,4 +1,4 @@
-<?php 
+<?php
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
@@ -37,6 +37,7 @@ include_once( PHPWG_ROOT_PATH .'include/derivative_params.inc.php');
 include_once( PHPWG_ROOT_PATH .'include/derivative_std_params.inc.php');
 include_once( PHPWG_ROOT_PATH .'include/derivative.inc.php');
 include_once( PHPWG_ROOT_PATH .'include/template.class.php');
+include_once( PHPWG_ROOT_PATH .'include/cache.class.php');
 
 
 /**
@@ -422,7 +423,7 @@ function pwg_log($image_id = null, $image_type = null)
     $do_log = $conf['history_guest'];
   }
 
-  $do_log = trigger_event('pwg_log_allowed', $do_log, $image_id, $image_type);
+  $do_log = trigger_change('pwg_log_allowed', $do_log, $image_id, $image_type);
 
   if (!$do_log)
   {
@@ -481,16 +482,16 @@ function dateDiff($date1, $date2)
   {
     return $date1->diff($date2);
   }
-  
+
   $diff = new stdClass();
-  
+
   //Make sure $date1 is ealier
   $diff->invert = $date2 < $date1;
   if ($diff->invert)
   {
     list($date1, $date2) = array($date2, $date1);
   }
-  
+
   //Calculate R values
   $R = ($date1 <= $date2 ? '+' : '-');
   $r = ($date1 <= $date2 ? '' : '-');
@@ -524,14 +525,14 @@ function dateDiff($date1, $date2)
     //Reset date and record increments
     $date1->modify('-1 '.$period);
   }
-  
+
   list($diff->y, $diff->m, $diff->d, $diff->h) = array_values($periods);
 
   //Minutes, seconds
   $diff->s = round(abs($date1->format('U') - $date2->format('U')));
   $diff->i = floor($diff->s/60);
   $diff->s = $diff->s - $diff->i*60;
-  
+
   return $diff;
 }
 
@@ -547,6 +548,11 @@ function str2DateTime($original, $format=null)
   if (empty($original))
   {
     return false;
+  }
+  
+  if ($original instanceof DateTime)
+  {
+    return $original;
   }
 
   if (!empty($format) && version_compare(PHP_VERSION, '5.3.0') >= 0)// from known date format
@@ -569,12 +575,12 @@ function str2DateTime($original, $format=null)
         $ymdhms[] = $tok;
         $tok = strtok('- :/');
       }
-      
+
       if (count($ymdhms)<3) return false;
       if (!isset($ymdhms[3])) $ymdhms[3] = 0;
       if (!isset($ymdhms[4])) $ymdhms[4] = 0;
       if (!isset($ymdhms[5])) $ymdhms[5] = 0;
-      
+
       $date = new DateTime();
       $date->setDate($ymdhms[0], $ymdhms[1], $ymdhms[2]);
       $date->setTime($ymdhms[3], $ymdhms[4], $ymdhms[5]);
@@ -587,15 +593,15 @@ function str2DateTime($original, $format=null)
  * returns a formatted and localized date for display
  *
  * @param int|string timestamp or datetime string
- * @param bool $show_time
- * @param bool $show_day_name
+ * @param array $show list of components displayed, default is ['day_name', 'day', 'month', 'year']
+ *    THIS PARAMETER IS PLANNED TO CHANGE
  * @param string $format input format respecting date() syntax
  * @return string
  */
-function format_date($original, $show_time=false, $show_day_name=true, $format=null)
+function format_date($original, $show=null, $format=null)
 {
   global $lang;
-  
+
   $date = str2DateTime($original, $format);
 
   if (!$date)
@@ -603,26 +609,72 @@ function format_date($original, $show_time=false, $show_day_name=true, $format=n
     return l10n('N/A');
   }
 
-  $print = '';
-  if ($show_day_name)
+  if ($show === null || $show === true)
   {
-    $print.= $lang['day'][ $date->format('w') ].' ';
+    $show = array('day_name', 'day', 'month', 'year');
   }
-  
-  $print.= $date->format('j');
-  $print.= ' '.$lang['month'][ $date->format('n') ];
-  $print.= ' '.$date->format('Y');
-  
-  if ($show_time)
+
+  // TODO use IntlDateFormatter for proper i18n
+
+  $print = '';
+  if (in_array('day_name', $show))
+    $print.= $lang['day'][ $date->format('w') ].' ';
+
+  if (in_array('day', $show))
+    $print.= $date->format('j').' ';
+
+  if (in_array('month', $show))
+    $print.= $lang['month'][ $date->format('n') ].' ';
+
+  if (in_array('year', $show))
+    $print.= $date->format('Y').' ';
+
+  if (in_array('time', $show))
   {
     $temp = $date->format('H:i');
     if ($temp != '00:00')
     {
-      $print.= ' '.$temp;
+      $print.= $temp.' ';
     }
   }
 
   return trim($print);
+}
+
+/**
+ * Format a "From ... to ..." string from two dates
+ * @param string $from
+ * @param string $to
+ * @param boolean $full
+ * @return string
+ */
+function format_fromto($from, $to, $full=false)
+{
+  $from = str2DateTime($from);
+  $to = str2DateTime($to);
+
+  if ($from->format('Y-m-d') == $to->format('Y-m-d'))
+  {
+    return format_date($from);
+  }
+  else
+  {
+    if ($full || $from->format('Y') != $to->format('Y'))
+    {
+      $from_str = format_date($from);
+    }
+    else if ($from->format('m') != $to->format('m'))
+    {
+      $from_str = format_date($from, array('day_name', 'day', 'month'));
+    }
+    else
+    {
+      $from_str = format_date($from, array('day_name', 'day'));
+    }
+    $to_str = format_date($to);
+
+    return l10n('from %s to %s', $from_str, $to_str);
+  }
 }
 
 /**
@@ -643,10 +695,10 @@ function time_since($original, $stop='minute', $format=null, $with_text=true, $w
   {
     return l10n('N/A');
   }
-  
+
   $now = new DateTime();
   $diff = dateDiff($now, $date);
-  
+
   $chunks = array(
     'year' => $diff->y,
     'month' => $diff->m,
@@ -656,16 +708,16 @@ function time_since($original, $stop='minute', $format=null, $with_text=true, $w
     'minute' => $diff->i,
     'second' => $diff->s,
   );
-  
+
   // DateInterval does not contain the number of weeks
   if ($with_week)
   {
     $chunks['week'] = (int)floor($chunks['day']/7);
     $chunks['day'] = $chunks['day'] - $chunks['week']*7;
   }
-  
+
   $j = array_search($stop, array_keys($chunks));
-  
+
   $print = ''; $i=0;
   foreach ($chunks as $name => $value)
   {
@@ -679,9 +731,9 @@ function time_since($original, $stop='minute', $format=null, $with_text=true, $w
     }
     $i++;
   }
-  
+
   $print = trim($print);
-  
+
   if ($with_text)
   {
     if ($diff->invert)
@@ -772,7 +824,7 @@ function redirect_html( $url , $msg = '', $refresh_time = 0)
   {
     $user = build_user( $conf['guest_id'], true);
     load_language('common.lang');
-    trigger_action('loading_lang');
+    trigger_notify('loading_lang');
     load_language('lang', PHPWG_ROOT_PATH.PWG_LOCAL_DIR, array('no_fallback'=>true, 'local'=>true) );
     $template = new Template(PHPWG_ROOT_PATH.'themes', get_default_theme());
   }
@@ -869,7 +921,7 @@ SELECT
   }
 
   // plugins want remove some themes based on user status maybe?
-  $themes = trigger_event('get_pwg_themes', $themes);
+  $themes = trigger_change('get_pwg_themes', $themes);
 
   return $themes;
 }
@@ -933,7 +985,7 @@ SELECT element_id
   FROM '.CADDIE_TABLE.'
   WHERE user_id = '.$user['id'].'
 ;';
-  $in_caddie = array_from_query($query, 'element_id');
+  $in_caddie = query2array($query, null, 'element_id');
 
   $caddiables = array_diff($elements_id, $in_caddie);
 
@@ -978,7 +1030,7 @@ function l10n($key)
 {
   global $lang, $conf;
 
-  if ( ($val=@$lang[$key]) == null)
+  if ( ($val=@$lang[$key]) === null)
   {
     if ($conf['debug_l10n'] and !isset($lang[$key]) and !empty($key))
     {
@@ -1042,7 +1094,7 @@ function get_l10n_args($key, $args='')
 /**
  * returns a string formated with l10n elements.
  * it is usefull to "prepare" a text and translate it later
- * @see get_l10n_args() 
+ * @see get_l10n_args()
  *
  * @param array $key_args one l10n_args element or array of l10n_args elements
  * @param string $sep used when translated elements are concatened
@@ -1111,7 +1163,7 @@ SELECT '.$conf['user_fields']['email'].'
 ;';
   list($email) = pwg_db_fetch_row(pwg_query($query));
 
-  $email = trigger_event('get_webmaster_mail_address', $email);
+  $email = trigger_change('get_webmaster_mail_address', $email);
 
   return $email;
 }
@@ -1152,8 +1204,8 @@ SELECT param, value
     }
     $conf[ $row['param'] ] = $val;
   }
-  
-  trigger_action('load_conf', $condition);
+
+  trigger_notify('load_conf', $condition);
 }
 
 /**
@@ -1161,36 +1213,38 @@ SELECT param, value
  *
  * @param string $param
  * @param string $value
+ * @param boolean $updateGlobal update global *$conf* variable
+ * @param callable $parser function to apply to the value before save in database
+      (eg: serialize, json_encode) will not be applied to *$conf* if *$parser* is *true*
  */
-function conf_update_param($param, $value)
+function conf_update_param($param, $value, $updateGlobal=false, $parser=null)
 {
-  $query = '
-SELECT
-    param,
-    value
-  FROM '.CONFIG_TABLE.'
-  WHERE param = \''.$param.'\'
-;';
-  $params = array_from_query($query, 'param');
-
-  if (count($params) == 0)
+  if ($parser != null)
   {
-    $query = '
-INSERT
-  INTO '.CONFIG_TABLE.'
-  (param, value)
-  VALUES(\''.$param.'\', \''.$value.'\')
-;';
-    pwg_query($query);
+    $dbValue = call_user_func($parser, $value);
+  }
+  else if (is_array($value) || is_object($value))
+  {
+    $dbValue = addslashes(serialize($value));
   }
   else
   {
-    $query = '
-UPDATE '.CONFIG_TABLE.'
-  SET value = \''.$value.'\'
-  WHERE param = \''.$param.'\'
+    $dbValue = boolean_to_string($value);
+  }
+
+  $query = '
+INSERT INTO
+  '.CONFIG_TABLE.' (param, value)
+  VALUES(\''.$param.'\', \''.$dbValue.'\')
+  ON DUPLICATE KEY UPDATE value = \''.$dbValue.'\'
 ;';
-    pwg_query($query);
+
+  pwg_query($query);
+
+  if ($updateGlobal)
+  {
+    global $conf;
+    $conf[$param] = $value;
   }
 }
 
@@ -1203,7 +1257,7 @@ UPDATE '.CONFIG_TABLE.'
 function conf_delete_param($params)
 {
   global $conf;
-  
+
   if (!is_array($params))
   {
     $params = array($params);
@@ -1212,17 +1266,49 @@ function conf_delete_param($params)
   {
     return;
   }
-  
+
   $query = '
 DELETE FROM '.CONFIG_TABLE.'
   WHERE param IN(\''. implode('\',\'', $params) .'\')
 ;';
   pwg_query($query);
-  
+
   foreach ($params as $param)
   {
     unset($conf[$param]);
   }
+}
+
+/**
+ * Apply *unserialize* on a value only if it is a string
+ * @since 2.7
+ *
+ * @param array|string $value
+ * @return array
+ */
+function safe_unserialize($value)
+{
+  if (is_string($value))
+  {
+    return unserialize($value);
+  }
+  return $value;
+}
+
+/**
+ * Apply *json_decode* on a value only if it is a string
+ * @since 2.7
+ *
+ * @param array|string $value
+ * @return array
+ */
+function safe_json_decode($value)
+{
+  if (is_string($value))
+  {
+    return json_decode($value, true);
+  }
+  return $value;
 }
 
 /**
@@ -1244,69 +1330,6 @@ function prepend_append_array_items($array, $prepend_str, $append_str)
 }
 
 /**
- * Builds an data array from a SQL query.
- * Depending on $key_name and $value_name it can return :
- *
- *    - an array of arrays of all fields (key=null, value=null)
- *        array(
- *          array('id'=>1, 'name'=>'DSC8956', ...),
- *          array('id'=>2, 'name'=>'DSC8957', ...),
- *          ...
- *          )
- *
- *    - an array of a single field (key=null, value='...')
- *        array('DSC8956', 'DSC8957', ...)
- *
- *    - an associative array of array of all fields (key='...', value=null)
- *        array(
- *          'DSC8956' => array('id'=>1, 'name'=>'DSC8956', ...),
- *          'DSC8957' => array('id'=>2, 'name'=>'DSC8957', ...),
- *          ...
- *          )
- *
- *    - an associative array of a single field (key='...', value='...')
- *        array(
- *          'DSC8956' => 1,
- *          'DSC8957' => 2,
- *          ...
- *          )
- *
- * @since 2.6
- *
- * @param string $query
- * @param string $key_name
- * @param string $value_name
- * @return array
- */
-function query2array($query, $key_name=null, $value_name=null)
-{
-  $result = pwg_query($query);
-  $data = array();
-
-  while ($row = pwg_db_fetch_assoc($result))
-  {
-    if (isset($value_name))
-    {
-      $value = $row[ $value_name ];
-    }
-    else
-    {
-      $value = $row;
-    }
-    if (isset($key_name))
-    {
-      $data[ $row[$key_name] ] = $value;
-    }
-    else
-    {
-      $data[] = $value;
-    }
-  }
-
-  return $data;
-}
-
-/**
  * creates an simple hashmap based on a SQL query.
  * choose one to be the key, another one to be the value.
  * @deprecated 2.6
@@ -1318,15 +1341,7 @@ function query2array($query, $key_name=null, $value_name=null)
  */
 function simple_hash_from_query($query, $keyname, $valuename)
 {
-  $array = array();
-
-  $result = pwg_query($query);
-  while ($row = pwg_db_fetch_assoc($result))
-  {
-    $array[ $row[$keyname] ] = $row[$valuename];
-  }
-
-  return $array;
+	return query2array($query, $keyname, $valuename);
 }
 
 /**
@@ -1340,13 +1355,7 @@ function simple_hash_from_query($query, $keyname, $valuename)
  */
 function hash_from_query($query, $keyname)
 {
-  $array = array();
-  $result = pwg_query($query);
-  while ($row = pwg_db_fetch_assoc($result))
-  {
-    $array[ $row[$keyname] ] = $row;
-  }
-  return $array;
+	return query2array($query, $keyname);
 }
 
 /**
@@ -1361,24 +1370,14 @@ function hash_from_query($query, $keyname)
  */
 function array_from_query($query, $fieldname=false)
 {
-  $array = array();
-
-  $result = pwg_query($query);
   if (false === $fieldname)
   {
-    while ($row = pwg_db_fetch_assoc($result))
-    {
-      $array[] = $row;      
-    }
+		return query2array($query);
   }
   else
   {
-    while ($row = pwg_db_fetch_assoc($result))
-    {
-      $array[] = $row[$fieldname];
-    }
+		return query2array($query, null, $fieldname);
   }
-  return $array;
 }
 
 /**
@@ -1424,7 +1423,7 @@ function get_filter_page_value($value_name)
   {
     return $conf['filter_pages'][$page_name][$value_name];
   }
-  else if (isset($conf['filter_pages']['default'][$value_name]))
+  elseif (isset($conf['filter_pages']['default'][$value_name]))
   {
     return $conf['filter_pages']['default'][$value_name];
   }
@@ -1487,24 +1486,25 @@ function get_parent_language($lang_id=null)
  *     @option string language - language to load
  *     @option bool return - if true the file content is returned
  *     @option bool no_fallback - if true do not load default language
+ *     @option bool|string force_fallback - force pre-loading of another language
+ *        default language if *true* or specified language
  *     @option bool local - if true load file from local directory
  * @return boolean|string
  */
 function load_language($filename, $dirname = '', $options = array())
 {
   global $user, $language_files;
-  
-  if ( !empty($dirname) and !empty($filename) )
+
+  // keep trace of plugins loaded files for switch_lang_to() function
+  if (!empty($dirname) && !empty($filename) && !@$options['return']
+    && !isset($language_files[$dirname][$filename]))
   {
-    if ( empty($language_files[$dirname]) or !in_array($filename,$language_files[$dirname]) )
-    {
-      $language_files[$dirname][] = $filename;
-    }
+    $language_files[$dirname][$filename] = $options;
   }
 
-  if (! @$options['return'] )
+  if (!@$options['return'])
   {
-    $filename .= '.php'; //MAYBE to do .. load .po and .mo localization files
+    $filename .= '.php';
   }
   if (empty($dirname))
   {
@@ -1512,40 +1512,41 @@ function load_language($filename, $dirname = '', $options = array())
   }
   $dirname .= 'language/';
 
+  $default_language = defined('PHPWG_INSTALLED') and !defined('UPGRADES_PATH') ?
+      get_default_language() : PHPWG_DEFAULT_LANGUAGE;
+
+  // construct list of potential languages
   $languages = array();
-  if ( !empty($options['language']) )
-  {
+  if (!empty($options['language']))
+  { // explicit language
     $languages[] = $options['language'];
   }
-  if ( !empty($user['language']) )
-  {
+  if (!empty($user['language']))
+  { // use language
     $languages[] = $user['language'];
   }
-  if ( ($parent = get_parent_language()) != null)
-  {
+  if (($parent = get_parent_language()) != null)
+  { // parent language
+    // this is only for when the "child" language is missing
     $languages[] = $parent;
   }
-  if ( ! @$options['no_fallback'] )
-  {
-    if ( defined('PHPWG_INSTALLED') )
+  if (isset($options['force_fallback']))
+  { // fallback language
+    // this is only for when the main language is missing
+    if ($options['force_fallback'] === true)
     {
-      $languages[] = get_default_language();
+      $options['force_fallback'] = $default_language;
     }
-    $languages[] = PHPWG_DEFAULT_LANGUAGE;
+    $languages[] = $options['force_fallback'];
+  }
+  if (!@$options['no_fallback'])
+  { // default language
+    $languages[] = $default_language;
   }
 
   $languages = array_unique($languages);
 
-  /*Note: target charset is always utf-8
-  if ( empty($options['target_charset']) )
-  {
-    $target_charset = get_pwg_charset();
-  }
-  else
-  {
-    $target_charset = $options['target_charset'];
-  }
-  $target_charset = strtolower($target_charset);*/
+  // find first existing
   $source_file       = '';
   $selected_language = '';
   foreach ($languages as $language)
@@ -1561,55 +1562,43 @@ function load_language($filename, $dirname = '', $options = array())
       break;
     }
   }
-
-  if ( !empty($source_file) )
+  
+  if (!empty($source_file))
   {
-    if (! @$options['return'] )
+    if (!@$options['return'])
     {
+      // load forced fallback
+      if (isset($options['force_fallback']) && $options['force_fallback'] != $selected_language)
+      {
+        @include(str_replace($selected_language, $options['force_fallback'], $source_file));
+      }
+
+      // load language content
       @include($source_file);
       $load_lang = @$lang;
       $load_lang_info = @$lang_info;
 
+      // access already existing values
       global $lang, $lang_info;
-      if ( !isset($lang) ) $lang=array();
-      if ( !isset($lang_info) ) $lang_info=array();
-      
-      $parent_language = !empty($load_lang_info['parent']) ? $load_lang_info['parent'] : (
-                            !empty($lang_info['parent']) ? $lang_info['parent'] : null );
-      if (!empty($parent_language) and $parent_language != $selected_language)
+      if (!isset($lang)) $lang = array();
+      if (!isset($lang_info)) $lang_info = array();
+
+      // load parent language content directly in global
+      if (!empty($load_lang_info['parent']))
+        $parent_language = $load_lang_info['parent'];
+      else if (!empty($lang_info['parent']))
+        $parent_language = $lang_info['parent'];
+      else 
+        $parent_language = null;
+
+      if (!empty($parent_language) && $parent_language != $selected_language)
       {
         @include(str_replace($selected_language, $parent_language, $source_file));
       }
 
-      /* Note: target charset is always utf-8
-      if ( 'utf-8'!=$target_charset)
-      {
-        if ( is_array($load_lang) )
-        {
-          foreach ($load_lang as $k => $v)
-          {
-            if ( is_array($v) )
-            {
-              $func = create_function('$v', 'return convert_charset($v, "utf-8", "'.$target_charset.'");' );
-              $lang[$k] = array_map($func, $v);
-            }
-            else
-              $lang[$k] = convert_charset($v, 'utf-8', $target_charset);
-          }
-        }
-        if ( is_array($load_lang_info) )
-        {
-          foreach ($load_lang_info as $k => $v)
-          {
-            $lang_info[$k] = convert_charset($v, 'utf-8', $target_charset);
-          }
-        }
-      }
-      else
-      {*/
-        $lang = array_merge( $lang, (array)$load_lang );
-        $lang_info = array_merge( $lang_info, (array)$load_lang_info );
-      //}
+      // merge contents
+      $lang = array_merge($lang, (array)$load_lang);
+      $lang_info = array_merge($lang_info, (array)$load_lang_info);
       return true;
     }
     else
@@ -1619,6 +1608,7 @@ function load_language($filename, $dirname = '', $options = array())
       return $content;
     }
   }
+
   return false;
 }
 
@@ -1887,9 +1877,9 @@ function check_input_parameter($param_name, $param_array, $is_array, $pattern, $
       fatal_error('[Hacking attempt] the input parameter "'.$param_name.'" should be an array');
     }
 
-    foreach ($param_value as $item_to_check)
+    foreach ($param_value as $key => $item_to_check)
     {
-      if (!preg_match($pattern, $item_to_check))
+      if (!preg_match(PATTERN_ID, $key) or !preg_match($pattern, $item_to_check))
       {
         fatal_error('[Hacking attempt] an item is not valid in input parameter "'.$param_name.'"');
       }
@@ -2018,15 +2008,7 @@ function mobile_theme()
  */
 function url_check_format($url)
 {
-  if (version_compare(PHP_VERSION, '5.2.0') >= 0)
-  {
-    return filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED)!==false;
-  }
-  else
-  {
-    // http://mathiasbynens.be/demo/url-regex @imme_emosol
-    return (bool)preg_match('@^https?://(-\.)?([^\s/?\.#-]+\.?)+(/[^\s]*)?$@iS', $url);
-  }
+  return filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED)!==false;
 }
 
 /**
@@ -2037,18 +2019,7 @@ function url_check_format($url)
  */
 function email_check_format($mail_address)
 {
-  if (version_compare(PHP_VERSION, '5.2.0') >= 0)
-  {
-    return filter_var($mail_address, FILTER_VALIDATE_EMAIL)!==false;
-  }
-  else
-  {
-    $atom   = '[-a-z0-9!#$%&\'*+\\/=?^_`{|}~]';   // before  arobase
-    $domain = '([a-z0-9]([-a-z0-9]*[a-z0-9]+)?)'; // domain name
-    $regex = '/^' . $atom . '+' . '(\.' . $atom . '+)*' . '@' . '(' . $domain . '{1,63}\.)+' . $domain . '{2,63}$/i';
-
-    return (bool)preg_match($regex, $mail_address);
-  }
+  return filter_var($mail_address, FILTER_VALIDATE_EMAIL)!==false;
 }
 
 /**
@@ -2069,8 +2040,7 @@ function get_nb_available_comments()
         array
           (
             'forbidden_categories' => 'category_id',
-            'visible_categories' => 'category_id',
-            'visible_images' => 'ic.image_id'
+            'forbidden_images' => 'ic.image_id'
           ),
         '', true
       );
@@ -2084,7 +2054,7 @@ SELECT COUNT(DISTINCT(com.id))
     AND ', $where);
     list($user['nb_available_comments']) = pwg_db_fetch_row(pwg_query($query));
 
-    single_update(USER_CACHE_TABLE, 
+    single_update(USER_CACHE_TABLE,
       array('nb_available_comments'=>$user['nb_available_comments']),
       array('user_id'=>$user['id'])
       );
@@ -2105,15 +2075,15 @@ SELECT COUNT(DISTINCT(com.id))
 function safe_version_compare($a, $b, $op=null)
 {
   $replace_chars = create_function('$m', 'return ord(strtolower($m[1]));');
-  
+
   // add dot before groups of letters (version_compare does the same thing)
   $a = preg_replace('#([0-9]+)([a-z]+)#i', '$1.$2', $a);
   $b = preg_replace('#([0-9]+)([a-z]+)#i', '$1.$2', $b);
-  
+
   // apply ord() to any single letter
   $a = preg_replace_callback('#\b([a-z]{1})\b#i', $replace_chars, $a);
   $b = preg_replace_callback('#\b([a-z]{1})\b#i', $replace_chars, $b);
-  
+
   if (empty($op))
   {
     return version_compare($a, $b);

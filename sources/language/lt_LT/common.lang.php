@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Lietuviu [LT]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=648
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -432,4 +432,4 @@ $lang['Password confirmation is missing. Please confirm the chosen password.'] =
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Nav paroles apstiprinājuma. Lūdzu apstipriniet paroli.';
 $lang['%d photos per page'] = '%d nuotr. puslapyje';
 $lang['Theme'] = 'Tema';
-?>
+$lang['No results for'] = 'Nėra rezultatų';

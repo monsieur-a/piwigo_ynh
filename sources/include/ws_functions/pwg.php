@@ -139,16 +139,7 @@ SELECT id, path, representative_ext, width, height, rotation
  */
 function ws_getVersion($params, &$service)
 {
-  global $conf;
-
-  if ($conf['show_version'] or is_admin())
-  {
-    return PHPWG_VERSION;
-  }
-  else
-  {
-    return new PwgError(403, 'Forbidden');
-  }
+  return PHPWG_VERSION;
 }
 
 /**
@@ -323,7 +314,7 @@ function ws_session_logout($params, &$service)
  */
 function ws_session_getStatus($params, &$service)
 {
-  global $user;
+  global $user, $conf;
 
   $res['username'] = is_a_guest() ? 'guest' : stripslashes($user['username']);
   foreach ( array('status', 'theme', 'language') as $k )
@@ -335,7 +326,21 @@ function ws_session_getStatus($params, &$service)
 
   list($dbnow) = pwg_db_fetch_row(pwg_query('SELECT NOW();'));
   $res['current_datetime'] = $dbnow;
+  $res['version'] = PHPWG_VERSION;
 
+  if (is_admin())
+  {
+    $res['upload_file_types'] = implode(
+      ',',
+      array_unique(
+        array_map(
+          'strtolower',
+          $conf['upload_form_all_types'] ? $conf['file_ext'] : $conf['picture_ext']
+          )
+        )
+      );
+  }
+  
   return $res;
 }
 

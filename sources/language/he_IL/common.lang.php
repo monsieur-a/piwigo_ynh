@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: עברית [IL]
-Version: 2.6.2
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=457
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -420,3 +420,9 @@ $lang['First Page'] = 'עמוד ראשון';
 $lang['Email'] = 'אימייל';
 $lang['%d photos per page'] = '%d תמונות בעמוד';
 $lang['No results for'] = 'לא נמצאו תוצאות עבור';
+$lang['Album name, A &rarr; Z'] = 'שם אלבום, A &rarr; Z';
+$lang['Album name, Z &rarr; A'] = 'שם אלבום, Z &rarr; A';
+$lang['Apply on properties'] = 'עדכן הגדרות';
+$lang['Link: %s'] = 'קישור: %s';
+$lang['Photo description'] = 'תיאור התמונה';
+$lang['Photo title'] = 'כותרת התמונה';

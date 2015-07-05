@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Norwegian nynorsk [NO]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=689
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -418,4 +418,10 @@ $lang['Password is missing. Please enter the password.'] = 'Passord manglar. Skr
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Stadfesting av passord manglar. Skriv inn stadfesting av passord.';
 $lang['%d photos per page'] = '%d bilete på kvar side';
 $lang['Theme'] = 'Utsjånadsmal';
-?>
+$lang['No results for'] = 'Ikkje noko resultat for';
+$lang['Apply on properties'] = 'Gjer aktiv for eigneskapar';
+$lang['Photo description'] = 'Biletskildring';
+$lang['Photo title'] = 'Bilettittel';
+$lang['Album name, A &rarr; Z'] = 'Albumnamn, A &rarr; &Aring;';
+$lang['Album name, Z &rarr; A'] = 'Albumnamn, &Aring; &rarr; A';
+$lang['Link: %s'] = 'Lenke: %s';

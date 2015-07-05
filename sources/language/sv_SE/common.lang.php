@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Svenska [SE]
-Version: 2.6.0
+Version: 2.7.1
 Language URI: http://piwigo.org/ext/extension_view.php?eid=451
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -419,4 +419,10 @@ $lang['Password is missing. Please enter the password.'] = 'Lösenord saknas. An
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Bekräftelse av lösenord saknas. Vänligen bekräfta ditt valda lösenord.';
 $lang['%d photos per page'] = '%d fotografier per sida';
 $lang['Theme'] = 'Tema';
-?>
+$lang['Apply on properties'] = 'Verkställ egenskaper';
+$lang['No results for'] = 'Inget resultat för';
+$lang['Photo description'] = 'Fotots beskrivning';
+$lang['Photo title'] = 'Fotots titel';
+$lang['Album name, A &rarr; Z'] = 'Albumnam, A &rarr; Ö';
+$lang['Album name, Z &rarr; A'] = 'Albumnamn, Ö &rarr; A';
+$lang['Link: %s'] = 'Länk: %s';

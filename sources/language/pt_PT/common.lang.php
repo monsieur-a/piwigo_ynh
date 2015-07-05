@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Português [PT]
-Version: 2.6.0
+Version: 2.7.1
 Language URI: http://piwigo.org/ext/extension_view.php?eid=432
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -423,4 +423,10 @@ $lang['Password is missing. Please enter the password.'] = 'Senha em falta. Por 
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Confirma��o da Senha em falta. Por favor confirme a Palavra Passe escolhida.';
 $lang['%d photos per page'] = '%d Fotos por página';
 $lang['Theme'] = 'Tema';
-?>
+$lang['No results for'] = 'Sem resultados para';
+$lang['Album name, A &rarr; Z'] = 'Nome do album, de A a Z';
+$lang['Album name, Z &rarr; A'] = 'Nome do album, de A a Z';
+$lang['Apply on properties'] = 'Aplicar nas propriedades';
+$lang['Link: %s'] = 'Link: %s';
+$lang['Photo description'] = 'Descrição da foto';
+$lang['Photo title'] = 'Título da foto';

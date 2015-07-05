@@ -22,16 +22,19 @@
 // +-----------------------------------------------------------------------+
 
 /**
- * loads an sql file and executes all queries
- *
+ * @package functions\admin\install
+ */
+
+
+/**
+ * Loads a SQL file and executes all queries.
  * Before executing a query, $replaced is... replaced by $replacing. This is
  * useful when the SQL file contains generic words. Drop table queries are
  * not executed.
  *
- * @param string filepath
- * @param string replaced
- * @param string replacing
- * @return void
+ * @param string $filepath
+ * @param string $replaced
+ * @param string $replacing
  */
 function execute_sqlfile($filepath, $replaced, $replacing, $dblayer)
 {
@@ -70,8 +73,6 @@ function execute_sqlfile($filepath, $replaced, $replacing, $dblayer)
 
 /**
  * Automatically activate all core themes in the "themes" directory.
- *
- * @return void
  */
 function activate_core_themes()
 {
@@ -86,6 +87,30 @@ function activate_core_themes()
   }
 }
 
+/**
+ * Automatically activate some core plugins
+ */
+function activate_core_plugins()
+{
+  include_once(PHPWG_ROOT_PATH.'admin/include/plugins.class.php');
+  
+  $plugins = new plugins();
+
+  foreach($plugins->fs_plugins as $plugin_id => $fs_plugin)
+  {
+    if (in_array($plugin_id, array('TakeATour')))
+    {
+      $plugins->perform_action('activate', $plugin_id);
+    }
+  }
+}
+
+/**
+ * Connect to database during installation. Uses $_POST.
+ *
+ * @param array &$infos - populated with infos
+ * @param array &$errors - populated with errors
+ */
 function install_db_connect(&$infos, &$errors)
 {
   try
@@ -99,4 +124,5 @@ function install_db_connect(&$infos, &$errors)
     $errors[] = l10n($e->getMessage());
   }
 }
+
 ?>

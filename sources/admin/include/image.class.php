@@ -64,7 +64,7 @@ class pwg_image
   {
     $this->source_filepath = $source_filepath;
 
-    trigger_action('load_image_library', array(&$this) );
+    trigger_notify('load_image_library', array(&$this) );
 
     if (is_object($this->image))
     {
@@ -241,7 +241,7 @@ class pwg_image
 
     $rotation = 0;
 
-    $exif = exif_read_data($source_filepath);
+    $exif = @exif_read_data($source_filepath);
 
     if (isset($exif['Orientation']) and preg_match('/^\s*(\d)/', $exif['Orientation'], $matches))
     {
@@ -547,6 +547,9 @@ class image_ext_imagick implements imageInterface
 
   function crop($width, $height, $x, $y)
   {
+    $this->width = $width;
+    $this->height = $height;
+
     $this->add_command('crop', $width.'x'.$height.'+'.$x.'+'.$y);
     return true;
   }
@@ -583,6 +586,9 @@ class image_ext_imagick implements imageInterface
 
   function resize($width, $height)
   {
+    $this->width = $width;
+    $this->height = $height;
+
     $this->add_command('filter', 'Lanczos');
     $this->add_command('resize', $width.'x'.$height.'!');
     return true;

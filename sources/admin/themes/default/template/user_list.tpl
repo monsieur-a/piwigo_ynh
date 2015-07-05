@@ -3,8 +3,8 @@
 {combine_script id='jquery.dataTables' load='footer' path='themes/default/js/plugins/jquery.dataTables.js'}
 {combine_css path="themes/default/js/plugins/datatables/css/jquery.dataTables.css"}
 
-{combine_script id='jquery.chosen' load='footer' path='themes/default/js/plugins/chosen.jquery.min.js'}
-{combine_css path="themes/default/js/plugins/chosen.css"}
+{combine_script id='jquery.selectize' load='footer' path='themes/default/js/plugins/selectize.min.js'}
+{combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.{$themeconf.colorscheme}.css"}
 
 {combine_script id='jquery.underscore' load='footer' path='themes/default/js/plugins/underscore.js'}
 
@@ -32,6 +32,12 @@ var guestUser = {$guest_user};
 var truefalse = {
   'true':"{'Yes'|translate}",
   'false':"{'No'|translate}",
+};
+
+var statusLabels = {
+{foreach from=$label_of_status key=status item=label}
+  '{$status}' : '{$label|escape:javascript}',
+{/foreach}
 };
 {/footer_script}
 
@@ -259,11 +265,7 @@ jQuery(document).ready(function() {
           
           user.email = user.email || '';
           
-          jQuery("#action select[name=status] option").each(function() {
-            if (user.status == jQuery(this).val()) {
-              user.statusLabel = jQuery(this).html();
-            }
-          });
+          user.statusLabel = statusLabels[user.status];
           
 		      /* Render the underscore template */
           _.templateSettings.variable = "user";
@@ -274,7 +276,25 @@ jQuery(document).ready(function() {
           
           jQuery("#user"+userId).append(template(user));
 
-          jQuery(".chzn-select").chosen();
+          /* groups select */
+          jQuery('[data-selectize=groups]').selectize({
+            valueField: 'value',
+            labelField: 'label',
+            searchField: ['label'],
+            plugins: ['remove_button']
+          });
+
+          var groupSelectize = jQuery('[data-selectize=groups]')[0].selectize;
+
+          groupSelectize.load(function(callback) {
+            callback(user.groupOptions);
+          });
+
+          jQuery.each(jQuery.grep(user.groupOptions, function(group) {
+            return group.isSelected;
+          }), function(i, group) {
+            groupSelectize.addItem(group.value);
+          });
 
           /* nb_image_page slider */
           var nb_image_page_init = getSliderKeyFromValue(jQuery('#user'+userId+' input[name=nb_image_page]').val(), nb_image_page_values);
@@ -1086,11 +1106,8 @@ span.infos, span.errors {background-image:none; padding:2px 5px; margin:0;border
       <div class="userProperty"><label><input type="checkbox" name="enabled_high"<% if (user.enabled_high == 'true') { %> checked="checked"<% } %>> <strong>{'High definition enabled'|translate}</strong></label></div>
 
       <div class="userProperty"><strong>{'Groups'|translate}</strong><br>
-        <select multiple class="chzn-select" style="width:340px;" name="group_id[]">
-<% _.each( user.groupOptions, function( option ){ %>
-          <option value="<%- option.value%>" <% if (option.isSelected) { %>selected="selected"<% } %>><%- option.label %></option>
-<% }); %>
-        </select>
+        <select data-selectize="groups" placeholder="{'Type in a search term'|translate}" 
+          name="group_id[]" multiple style="width:340px;"></select>
       </div>
     </div>
 

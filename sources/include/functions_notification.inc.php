@@ -217,7 +217,7 @@ function custom_notification_query($action, $type, $start=null, $end=null)
           break;
       }
       $query = 'SELECT DISTINCT '.$field_id.' '.$query.';';
-      $infos = array_from_query($query);
+      $infos = query2array($query);
       return $infos;
       break;
     }
@@ -441,8 +441,13 @@ function news($start=null, $end=null, $exclude_img_cats=false, $add_url=false)
  */
 function get_recent_post_dates($max_dates, $max_elements, $max_cats)
 {
-  global $conf, $user;
+  global $conf, $user, $persistent_cache;
 
+  $cache_key = $persistent_cache->make_key('recent_posts'.$user['id'].$user['cache_update_time'].$max_dates.$max_elements.$max_cats);
+  if ($persistent_cache->get($cache_key, $cached))
+  {
+    return $cached;
+  }
   $where_sql = get_std_sql_where_restrict_filter('WHERE', 'i.id', true);
 
   $query = '
@@ -456,7 +461,7 @@ SELECT
   ORDER BY date_available DESC
   LIMIT '.$max_dates.'
 ;';
-  $dates = array_from_query($query);
+  $dates = query2array($query);
 
   for ($i=0; $i<count($dates); $i++)
   {
@@ -471,7 +476,7 @@ SELECT DISTINCT i.*
   ORDER BY '.DB_RANDOM_FUNCTION.'()
   LIMIT '.$max_elements.'
 ;';
-      $dates[$i]['elements'] = array_from_query($query);
+      $dates[$i]['elements'] = query2array($query);
     }
 
     if ($max_cats>0)
@@ -489,10 +494,11 @@ SELECT
   ORDER BY img_count DESC
   LIMIT '.$max_cats.'
 ;';
-      $dates[$i]['categories'] = array_from_query($query);
+      $dates[$i]['categories'] = query2array($query);
     }
   }
 
+  $persistent_cache->set($cache_key, $dates);
   return $dates;
 }
 

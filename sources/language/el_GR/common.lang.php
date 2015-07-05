@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Ελληνικά [GR]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=508
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -419,4 +419,10 @@ $lang['Password is missing. Please enter the password.'] = 'Κωδικός λε�
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Η επιβεβαίωση κωδικού λείπει. Επιβεβαιώστε τον επιλεγμένο κωδικό πρόσβασης';
 $lang['Theme'] = 'Θέμα';
 $lang['%d photos per page'] = '%d φωτογραφίες ανά σελίδα';
-?>
+$lang['No results for'] = 'Κανένα αποτέλεσμα για';
+$lang['Photo title'] = 'Τίτλος Φωτογραφίας';
+$lang['Photo description'] = 'Περιγραφή Φωτογραφίας';
+$lang['Apply on properties'] = 'Εφαρμόστε σε ιδιότητες';
+$lang['Album name, Z &rarr; A'] = 'Όνομα Λευκώματος, Ω &rarr; Α';
+$lang['Album name, A &rarr; Z'] = 'Όνομα Λευκώματος, Α &rarr; Ω';
+$lang['Link: %s'] = 'Σύνδεσμος: %s';

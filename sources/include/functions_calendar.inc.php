@@ -36,7 +36,7 @@ define('CAL_VIEW_CALENDAR', 'calendar');
  */
 function initialize_calendar()
 {
-  global $page, $conf, $user, $template, $filter;
+  global $page, $conf, $user, $template, $persistent_cache, $filter;
 
 //------------------ initialize the condition on items to take into account ---
   $inner_sql = ' FROM ' . IMAGES_TABLE;
@@ -114,11 +114,13 @@ WHERE id IN (' . implode(',',$page['items']) .')';
     'monthly' => array(
       'include'        => 'calendar_monthly.class.php',
       'view_calendar'  => true,
+      'classname'      => 'CalendarMonthly',
       ),
     // Weekly style
     'weekly' => array(
       'include'        => 'calendar_weekly.class.php',
       'view_calendar'  => false,
+      'classname'      => 'CalendarWeekly',
       ),
     );
 
@@ -133,9 +135,10 @@ WHERE id IN (' . implode(',',$page['items']) .')';
     $page['chronology_style'] = 'monthly';
   }
   $cal_style = $page['chronology_style'];
+  $classname = $styles[$cal_style]['classname'];
+
   include(PHPWG_ROOT_PATH.'include/'. $styles[$cal_style]['include']);
-  // TODO : class name overlap, rename them in CalendarMonth and CalendarWeek
-  $calendar = new Calendar(); 
+  $calendar = new $classname();
 
   // Retrieve view
 
@@ -269,14 +272,9 @@ WHERE id IN (' . implode(',',$page['items']) .')';
 
   if ($must_show_list)
   {
-    $query = 'SELECT DISTINCT id ';
-    $query .= ','.$calendar->date_field;
-    $query .= $calendar->inner_sql.'
-  '.$calendar->get_date_where();
     if ( isset($page['super_order_by']) )
     {
-      $query .= '
-  '.$conf['order_by'];
+      $order_by = $conf['order_by'];
     }
     else
     {
@@ -293,10 +291,27 @@ WHERE id IN (' . implode(',',$page['items']) .')';
         'ORDER BY ',
         'ORDER BY '.$calendar->date_field.$order, $conf['order_by']
         );
-      $query .= '
-  '.$order_by;
     }
-    $page['items'] = array_from_query($query, 'id');
+    
+    if ('categories'==$page['section'] && !isset($page['category'])
+      && ( count($page['chronology_date'])==0
+            OR ($page['chronology_date'][0]=='any' && count($page['chronology_date'])==1) )
+      )
+    {
+      $cache_key = $persistent_cache->make_key($user['id'].$user['cache_update_time']
+        .$calendar->date_field.$order_by);
+    }
+
+    if ( !isset($cache_key) || !$persistent_cache->get($cache_key, $page['items']))
+    {
+      $query = 'SELECT DISTINCT id '
+        .$calendar->inner_sql.'
+  '.$calendar->get_date_where().'
+  '.$order_by;
+      $page['items'] = array_from_query($query, 'id');
+      if ( isset($cache_key) )
+        $persistent_cache->set($cache_key, $page['items']);
+    }
   }
   pwg_debug('end initialize_calendar');
 }

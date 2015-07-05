@@ -40,7 +40,7 @@ include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 
 check_status(ACCESS_ADMINISTRATOR);
 
-trigger_action('loc_begin_element_set_global');
+trigger_notify('loc_begin_element_set_global');
 
 check_input_parameter('del_tags', $_POST, true, PATTERN_ID);
 check_input_parameter('associate', $_POST, false, PATTERN_ID);
@@ -86,7 +86,8 @@ if (isset($_POST['submit']))
   }
 
   $action = $_POST['selectAction'];
-  
+  $redirect = false;
+
   if ('remove_from_caddie' == $action)
   {
     $query = '
@@ -98,10 +99,10 @@ DELETE
     pwg_query($query);
 
     // remove from caddie action available only in caddie so reload content
-    redirect($redirect_url);
+    $redirect = true;
   }
 
-  if ('add_tags' == $action)
+  else if ('add_tags' == $action)
   {
     if (empty($_POST['add_tags']))
     {
@@ -114,27 +115,33 @@ DELETE
 
       if ('no_tag' == $page['prefilter'])
       {
-        redirect($redirect_url);
+        $redirect = true;
       }
     }
   }
 
-  if ('del_tags' == $action)
+  else if ('del_tags' == $action)
   {
-     if (isset($_POST['del_tags']) and count($_POST['del_tags']) > 0)
-     {
-    $query = '
+    if (isset($_POST['del_tags']) and count($_POST['del_tags']) > 0)
+    {
+      $query = '
 DELETE
   FROM '.IMAGE_TAG_TABLE.'
   WHERE image_id IN ('.implode(',', $collection).')
     AND tag_id IN ('.implode(',', $_POST['del_tags']).')
 ;';
-    pwg_query($query);
+      pwg_query($query);
+      
+      if (isset($_SESSION['bulk_manager_filter']['tags']) &&
+        count(array_intersect($_SESSION['bulk_manager_filter']['tags'], $_POST['del_tags'])))
+      {
+        $redirect = true;
+      }
     }
-     else
-     {
+    else
+    {
       $page['errors'][] = l10n('Select at least one tag');
-     }
+    }
   }
 
   if ('associate' == $action)
@@ -147,54 +154,54 @@ DELETE
     $_SESSION['page_infos'] = array(
       l10n('Information data registered in database')
       );
-    
+
     // let's refresh the page because we the current set might be modified
     if ('no_album' == $page['prefilter'])
     {
-      redirect($redirect_url);
+      $redirect = true;
     }
 
-    if ('no_virtual_album' == $page['prefilter'])
+    else if ('no_virtual_album' == $page['prefilter'])
     {
       $category_info = get_cat_info($_POST['associate']);
       if (empty($category_info['dir']))
       {
-        redirect($redirect_url);
+        $redirect = true;
       }
     }
   }
 
-  if ('move' == $action)
+  else if ('move' == $action)
   {
     move_images_to_categories($collection, array($_POST['move']));
 
     $_SESSION['page_infos'] = array(
       l10n('Information data registered in database')
       );
-    
+
     // let's refresh the page because we the current set might be modified
     if ('no_album' == $page['prefilter'])
     {
-      redirect($redirect_url);
+      $redirect = true;
     }
 
-    if ('no_virtual_album' == $page['prefilter'])
+    else if ('no_virtual_album' == $page['prefilter'])
     {
       $category_info = get_cat_info($_POST['move']);
       if (empty($category_info['dir']))
       {
-        redirect($redirect_url);
+        $redirect = true;
       }
     }
 
-    if (isset($_SESSION['bulk_manager_filter']['category'])
+    else if (isset($_SESSION['bulk_manager_filter']['category'])
         and $_POST['move'] != $_SESSION['bulk_manager_filter']['category'])
     {
-      redirect($redirect_url);
+      $redirect = true;
     }
   }
 
-  if ('dissociate' == $action)
+  else if ('dissociate' == $action)
   {
     // physical links must not be broken, so we must first retrieve image_id
     // which create virtual links with the category to "dissociate from".
@@ -224,20 +231,20 @@ DELETE
       $_SESSION['page_infos'] = array(
         l10n('Information data registered in database')
         );
-      
+
       // let's refresh the page because the current set might be modified
-      redirect($redirect_url);
+      $redirect = true;
     }
   }
 
   // author
-  if ('author' == $action)
+  else if ('author' == $action)
   {
     if (isset($_POST['remove_author']))
     {
       $_POST['author'] = null;
     }
-    
+
     $datas = array();
     foreach ($collection as $image_id)
     {
@@ -255,13 +262,13 @@ DELETE
   }
 
   // title
-  if ('title' == $action)
+  else if ('title' == $action)
   {
     if (isset($_POST['remove_title']))
     {
       $_POST['title'] = null;
     }
-    
+
     $datas = array();
     foreach ($collection as $image_id)
     {
@@ -277,20 +284,17 @@ DELETE
       $datas
       );
   }
-  
-  // date_creation
-  if ('date_creation' == $action)
-  {
-    $date_creation = sprintf(
-      '%u-%u-%u',
-      $_POST['date_creation_year'],
-      $_POST['date_creation_month'],
-      $_POST['date_creation_day']
-      );
 
-    if (isset($_POST['remove_date_creation']))
+  // date_creation
+  else if ('date_creation' == $action)
+  {
+    if (isset($_POST['remove_date_creation']) || empty($_POST['date_creation']))
     {
       $date_creation = null;
+    }
+    else
+    {
+      $date_creation = $_POST['date_creation'];
     }
 
     $datas = array();
@@ -308,9 +312,9 @@ DELETE
       $datas
       );
   }
-  
+
   // privacy_level
-  if ('level' == $action)
+  else if ('level' == $action)
   {
     $datas = array();
     foreach ($collection as $image_id)
@@ -331,19 +335,19 @@ DELETE
     {
       if ($_POST['level'] < $_SESSION['bulk_manager_filter']['level'])
       {
-        redirect($redirect_url);
+        $redirect = true;
       }
     }
   }
-  
+
   // add_to_caddie
-  if ('add_to_caddie' == $action)
+  else if ('add_to_caddie' == $action)
   {
     fill_caddie($collection);
   }
-  
+
   // delete
-  if ('delete' == $action)
+  else if ('delete' == $action)
   {
     if (isset($_POST['confirm_deletion']) and 1 == $_POST['confirm_deletion'])
     {
@@ -356,7 +360,7 @@ DELETE
           );
 
         $redirect_url = get_root_url().'admin.php?page='.$_GET['page'];
-        redirect($redirect_url);
+        $redirect = true;
       }
       else
       {
@@ -370,13 +374,13 @@ DELETE
   }
 
   // synchronize metadata
-  if ('metadata' == $action)
+  else if ('metadata' == $action)
   {
     sync_metadata($collection);
     $page['infos'][] = l10n('Metadata synchronized from file');
   }
 
-  if ('delete_derivatives' == $action)
+  else if ('delete_derivatives' == $action && !empty($_POST['del_derivatives_type']))
   {
     $query='SELECT path,representative_ext FROM '.IMAGES_TABLE.'
   WHERE id IN ('.implode(',', $collection).')';
@@ -390,7 +394,7 @@ DELETE
     }
   }
 
-  if ('generate_derivatives' == $action)
+  else if ('generate_derivatives' == $action)
   {
     if ($_POST['regenerateSuccess'] != '0')
     {
@@ -402,7 +406,17 @@ DELETE
     }
   }
 
-  trigger_action('element_set_global_action', $action, $collection);
+  if (!in_array($action, array('remove_from_caddie','add_to_caddie','delete_derivatives','generate_derivatives')))
+  {
+    invalidate_user_cache();
+  }
+
+  trigger_notify('element_set_global_action', $action, $collection);
+
+  if ($redirect)
+  {
+    redirect($redirect_url);
+  }
 }
 
 // +-----------------------------------------------------------------------+
@@ -427,7 +441,7 @@ if ($conf['enable_synchronization'])
   $prefilters[] = array('ID' => 'no_virtual_album', 'NAME' => l10n('With no virtual album'));
 }
 
-$prefilters = trigger_event('get_batch_manager_prefilters', $prefilters);
+$prefilters = trigger_change('get_batch_manager_prefilters', $prefilters);
 usort($prefilters, 'UC_name_compare');
 
 $template->assign(
@@ -472,6 +486,8 @@ $template->assign(
   );
 
 // tags
+$filter_tags = array();
+
 if (!empty($_SESSION['bulk_manager_filter']['tags']))
 {
   $query = '
@@ -481,19 +497,11 @@ SELECT
   FROM '.TAGS_TABLE.'
   WHERE id IN ('.implode(',', $_SESSION['bulk_manager_filter']['tags']).')
 ;';
-  $template->assign('filter_tags', get_taglist($query));
+
+  $filter_tags = get_taglist($query);
 }
 
-// Virtualy associate a picture to a category
-$query = '
-SELECT id,name,uppercats,global_rank
-  FROM '.CATEGORIES_TABLE.'
-;';
-$categories = array_from_query($query);
-usort($categories, 'global_rank_compare');
-display_select_categories($categories, array(), 'category_full_name_options', true);
-
-display_select_cat_wrapper($query, array(), 'category_parent_options');
+$template->assign('filter_tags', $filter_tags);
 
 // in the filter box, which category to select by default
 $selected_category = array();
@@ -506,24 +514,20 @@ else
 {
   // we need to know the category in which the last photo was added
   $query = '
-SELECT
-    category_id,
-    id_uppercat
-  FROM '.IMAGES_TABLE.' AS i
-    JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON image_id = i.id
-    JOIN '.CATEGORIES_TABLE.' AS c ON category_id = c.id
-  ORDER BY i.id DESC
+SELECT category_id
+  FROM '.IMAGE_CATEGORY_TABLE.'
+  ORDER BY image_id DESC
   LIMIT 1
 ;';
   $result = pwg_query($query);
   if (pwg_db_num_rows($result) > 0)
   {
     $row = pwg_db_fetch_assoc($result);
-    $selected_category = array($row['category_id']);
+    $selected_category[] = $row['category_id'];
   }
 }
 
-$template->assign( 'filter_category_selected', $selected_category);
+$template->assign('filter_category_selected', $selected_category);
 
 // Dissociate from a category : categories listed for dissociation can only
 // represent virtual links. We can't create orphans. Links to physical
@@ -532,12 +536,8 @@ if (count($page['cat_elements_id']) > 0)
 {
   $query = '
 SELECT
-    DISTINCT(category_id) AS id,
-    c.name,
-    c.uppercats,
-    c.global_rank
+    DISTINCT(category_id) AS id
   FROM '.IMAGE_CATEGORY_TABLE.' AS ic
-    JOIN '.CATEGORIES_TABLE.' AS c ON c.id = ic.category_id
     JOIN '.IMAGES_TABLE.' AS i ON i.id = ic.image_id
   WHERE ic.image_id IN ('.implode(',', $page['cat_elements_id']).')
     AND (
@@ -545,40 +545,19 @@ SELECT
       OR i.storage_category_id IS NULL
     )
 ;';
-  display_select_cat_wrapper($query, array(), 'dissociate_options', true);
+
+  $template->assign('associated_categories', query2array($query, 'id', 'id'));
 }
 
 if (count($page['cat_elements_id']) > 0)
 {
   // remove tags
-  $tags = get_common_tags($page['cat_elements_id'], -1);
-
-  $template->assign(
-    array(
-      'DEL_TAG_SELECTION' => get_html_tag_selection($tags, 'del_tags'),
-      )
-    );
+  $template->assign('associated_tags', get_common_tags($page['cat_elements_id'], -1));
 }
 
 // creation date
-$day =
-empty($_POST['date_creation_day']) ? date('j') : $_POST['date_creation_day'];
-
-$month =
-empty($_POST['date_creation_month']) ? date('n') : $_POST['date_creation_month'];
-
-$year =
-empty($_POST['date_creation_year']) ? date('Y') : $_POST['date_creation_year'];
-
-$month_list = $lang['month'];
-$month_list[0]='------------';
-ksort($month_list);
-$template->assign( array(
-      'month_list'         => $month_list,
-      'DATE_CREATION_DAY'  => (int)$day,
-      'DATE_CREATION_MONTH'=> (int)$month,
-      'DATE_CREATION_YEAR' => (int)$year,
-    )
+$template->assign('DATE_CREATION',
+  empty($_POST['date_creation']) ? date('Y-m-d').' 00:00:00' : $_POST['date_creation']
   );
 
 // image level options
@@ -664,11 +643,11 @@ if (count($page['cat_elements_id']) > 0)
   $query = '
 SELECT id,path,representative_ext,file,filesize,level,name,width,height,rotation
   FROM '.IMAGES_TABLE;
-  
+
   if ($is_category)
   {
     $category_info = get_cat_info($_SESSION['bulk_manager_filter']['category']);
-    
+
     $conf['order_by'] = $conf['order_by_inside_category'];
     if (!empty($category_info['image_order']))
     {
@@ -720,14 +699,13 @@ SELECT id,path,representative_ext,file,filesize,level,name,width,height,rotation
   $template->assign('thumb_params', $thumb_params);
 }
 
-$template->assign(
-  array(
-    'nb_thumbs_page' => $nb_thumbs_page,
-    'nb_thumbs_set' => count($page['cat_elements_id']),
-    )
-  );
+$template->assign(array(
+  'nb_thumbs_page' => $nb_thumbs_page,
+  'nb_thumbs_set' => count($page['cat_elements_id']),
+  'CACHE_KEYS' => get_admin_client_cache_keys(array('tags', 'categories')),
+  ));
 
-trigger_action('loc_end_element_set_global');
+trigger_notify('loc_end_element_set_global');
 
 //----------------------------------------------------------- sending html code
 $template->assign_var_from_handle('ADMIN_CONTENT', 'batch_manager_global');

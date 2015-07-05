@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Brasil [BR]
-Version: 2.6.1
+Version: 2.7.1
 Language URI: http://piwigo.org/ext/extension_view.php?eid=431
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -33,6 +33,7 @@ $lang_info['language_name'] = 'Português';
 $lang_info['country'] = 'Brasil';
 $lang_info['direction'] = 'ltr';
 $lang_info['code'] = 'pt';
+$lang_info['jquery_code'] = 'pt-BR';
 $lang_info['zero_plural'] = false;
 
 $lang['%d Kb'] = '%d Kb';
@@ -419,4 +420,10 @@ $lang['Password is missing. Please enter the password.'] = 'Senha perdida. Por f
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Confirmação de senhas perdida. Por favor confirme a senha escolhida.';
 $lang['%d photos per page'] = '%d fotos por página';
 $lang['Theme'] = 'Tema';
-?>
+$lang['No results for'] = 'Nenhum resultado para';
+$lang['Apply on properties'] = 'Aplicar em propriedades';
+$lang['Photo description'] = 'Descrição da foto';
+$lang['Photo title'] = 'Título da foto';
+$lang['Album name, A &rarr; Z'] = 'Nome do álbum, A &rarr; Z';
+$lang['Album name, Z &rarr; A'] = 'Nome do álbum, Z &rarr; A';
+$lang['Link: %s'] = 'Link: %s';

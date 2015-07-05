@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Français [FR]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=421
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -57,7 +57,7 @@ $lang['%d photos'] = '%d photos';
 $lang['%d rates'] = '%d notes';
 $lang['(!) This comment requires validation'] = '(!) Ce commentaire doit être validé';
 $lang['... or browse your empty gallery'] = '... ou naviguez sur votre galerie vide';
-$lang['... or please deactivate this message, I will find my way by myself'] = '... ou désactivez ce message, je me débrouillerai par moi-même';
+$lang['... or please deactivate this message, I will find my way by myself'] = '... ou désactiver ce message, je me débrouillerai par moi-même';
 $lang['A comment on your site'] = 'Un commentaire sur le site';
 $lang['About Piwigo'] = 'À propos de Piwigo';
 $lang['About'] = 'À propos';
@@ -418,4 +418,10 @@ $lang['Password is missing. Please enter the password.'] = "Le mot de passe manq
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = "La confirmation du mot de passe manque. Veuillez confirmer le mot de passe choisi.";
 $lang['%d photos per page'] = '%d photos par page';
 $lang['Theme'] = 'Thème';
-?>
+$lang['No results for'] = 'Aucun résultat pour';
+$lang['Apply on properties'] = 'Appliquer sur les propriétés';
+$lang['Photo title'] = 'Titre de la photo';
+$lang['Photo description'] = 'Description de la photo';
+$lang['Album name, A &rarr; Z'] = 'Nom de l\'album, A &rarr; Z';
+$lang['Album name, Z &rarr; A'] = 'Nom de l\'album, Z &rarr; A';
+$lang['Link: %s'] = 'Lien: %s';

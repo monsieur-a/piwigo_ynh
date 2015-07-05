@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Polski [PL]
-Version: 2.6.1
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=430
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -442,3 +442,9 @@ $lang['month']['7'] = 'lipiec';
 $lang['month']['8'] = 'sierpień';
 $lang['month']['9'] = 'wrzesień';
 $lang['No results for'] = 'Brak wyników dla';
+$lang['Apply on properties'] = 'Akceptuj ustawienia';
+$lang['Photo description'] = 'Opis zdjęcia';
+$lang['Photo title'] = 'Tytuł zdjęcia';
+$lang['Album name, A &rarr; Z'] = 'Nazwa albumu, A &rarr; Z';
+$lang['Album name, Z &rarr; A'] = 'Nazwa albumu, Z &rarr; A';
+$lang['Link: %s'] = 'Link: %s';

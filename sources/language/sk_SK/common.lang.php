@@ -25,7 +25,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Slovensky [SK]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=452
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -428,4 +428,10 @@ $lang['Password is missing. Please enter the password.'] = 'Chýba heslo. Prosí
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Chýba potvrdenie hesla. Prosím potvrďte vybrané heslo.';
 $lang['%d photos per page'] = '%d fotiek na stránku';
 $lang['Theme'] = 'Téma';
-?>
+$lang['No results for'] = 'Žiadne výsledky pre';
+$lang['Apply on properties'] = 'Pridať do vlastností';
+$lang['Photo description'] = 'Popis fotky';
+$lang['Photo title'] = 'Názov fotky';
+$lang['Album name, Z &rarr; A'] = 'Názov albumu, Z &rarr; A';
+$lang['Album name, A &rarr; Z'] = 'Názov albumu, A &rarr; Z';
+$lang['Link: %s'] = 'Link: %s';

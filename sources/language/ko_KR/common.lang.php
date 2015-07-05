@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: 한국어 [KR]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=509
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -32,6 +32,7 @@ $lang_info['language_name'] = "한국어";
 $lang_info['country'] = "대한민국";
 $lang_info['direction'] = "ltr";
 $lang_info['code'] = "en";
+$lang_info['jquery_code'] = "ko";
 $lang_info['zero_plural'] = true;
 
 $lang['%d album updated'] = '%d 개의 앨범이 업데이트 되었습니다';

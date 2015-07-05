@@ -111,7 +111,6 @@ $lang['New parent album'] = 'آلبوم مادر تازه';
 $lang['New tag'] = 'برچسب تاره';
 $lang['Number of comments per page'] = 'شمار دیدگاه‌ها در هر برگه';
 $lang['Number of rates'] = 'امتیاز‌ها';
-$lang['Number of thumbnails to create'] = 'شمار عکس ریزه‌ها برای ساختن';
 $lang['Only private albums are listed'] = 'تنها آلبوم‌های شخصی را نشان بده';
 $lang['Operating system'] = 'سیستم عامل';
 $lang['Options'] = 'گزینه ها';
@@ -159,7 +158,7 @@ $lang['Tag selection'] = 'انتخاب برچسب ها';
 $lang['The %d following tags were deleted'] = 'برچسب های %d پاک شدند';
 $lang['Unable to check for upgrade.'] = 'سیستم قادر به بروز رسانی نیست.';
 $lang['Uninstall'] = 'پاک کردن';
-$lang['Use the default photo sort order (defined in the configuration file)'] = 'استفاده از مرتب سازی پیشفرض برای عکس (پیشفرض در فایل تنظیمات است)';
+$lang['Use the default photo sort order'] = 'استفاده از مرتب سازی پیشفرض برای عکس';
 $lang['User comments validation'] = 'پذیرفتن دیدگاه های کاربر';
 $lang['Users'] = "کاربران";
 $lang['Validate'] = "تایید";
@@ -324,7 +323,6 @@ $lang['Piwigo configuration'] = "پیکربندی Piwigo";
 $lang['Edit album'] = 'ویرایش آلبوم';
 $lang['Group management'] = 'مدیریت گروه‌ها';
 $lang['User list'] = "لیست کاربران";
-$lang['Edit photo information'] = 'ویرایش اطلاعات عکس';
 $lang['Database synchronization with files'] = 'همگام‌ سازی پایگاه‌ داده با فایل‌ها';
 $lang['all'] = "همه";
 $lang['height must be a number superior to'] = 'بلندا باید بزرگتر باشد از';
@@ -334,7 +332,6 @@ $lang['Photo unreachable or no support'] = 'عکس غیر قابل دسترسی 
 $lang['GD version'] = 'نگارش GD';
 $lang['General statistics'] = 'آمار کلی';
 $lang['average time'] = "زمان متوسط";
-$lang['number of miniaturized photos'] = 'تعداد عکس ریزه ایجاد شد';
 $lang['total time'] = 'مجموع زمان';
 $lang['for this file format'] = 'برای این فرمت فایل';
 $lang['unit mode'] = "حالت تکی";
@@ -449,7 +446,6 @@ $lang['add new photos to caddie'] = 'افزودن عکس های تازه به س
 $lang['No display'] = "بدون نمایش";
 $lang['Classic display'] = "نمایش کلاسیک";
 $lang['Hoverbox display'] = 'نمایش جعبه‌ی شناور';
-$lang['Mail address is obligatory for all users'] = 'آدرس ایمیل برای تمام کاربران الزامی است';
 $lang['Minimum privacy level'] = 'پایین‌ترین سطح ‌خصوصی';
 $lang['Privacy level'] = "سطح خصوصی";
 $lang['Level 0'] = "---";
@@ -477,7 +473,6 @@ $lang['Are you sure you want to delete this plugin?'] = 'آیا می‌خواه�
 $lang['Are you sure you want to install this plugin?'] = 'آیا می‌خواهید این افزونه را نصب کنید؟';
 $lang['Are you sure to install this upgrade? You must verify if this version does not need uninstallation.'] = 'آیا می‌خواهید این آپگرید را نصب کنید؟ باید این را بپذیرید زیرا ممکن است نیاز به پاک کردن افزونه‌ای باشد.';
 $lang['Plugin has been successfully copied'] = 'افزونه با موفقیت کپی شد';
-$lang['You might go to plugin list to install and activate it.'] = 'برای نصب یا از کار انداختن این افزونه به لیست افزونه ها بروید.';
 $lang['Can\'t create temporary file.'] = 'امکان ایجاد فایل موقت وجود ندارد.';
 $lang['Can\'t download archive.'] = 'بایگانی را نمی‌توان دانلود کرد.';
 $lang['Can\'t read or extract archive.'] = 'بایگانی را نمی‌توان خواند یا باز کرد.';
@@ -976,4 +971,16 @@ $lang['Change password'] = 'تغيير رمز';
 $lang['All %d users are selected'] = 'تمام %d كاربر انتخاب شده اند.';
 $lang['(filtered from %s total users)'] = '(فيلتر شده از بين %s كاربر)';
 $lang['%d of %d users selected'] = 'تعداد %d كاربر از %d كاربران انتخاب شده‌اند.';
-?>
+$lang['Activate it now'] = 'فعال درحال حاضر';
+$lang['Allow users to add a link to their website'] = 'به کاربران اجازه‌ی افزودنِ لینکِ وبسایتشان داده شود';
+$lang['Impossible to deactivate the default theme.'] = 'پوسته‌ی اصلی را نمی‌توان غیرفعال کرد.';
+$lang['Mail address is mandatory for registration'] = 'آدرس ایمیل برای نام نویسی مورد نیاز است';
+$lang['Upload in progress'] = 'در حالِ آپلود';
+$lang['based on'] = 'بر پایه‌ی';
+$lang['between %s and %s MB'] = 'حجمِ بینِ %s و %s مگابایت';
+$lang['date & time'] = 'تاریخ و زمان';
+$lang['file name'] = 'نامِ فایل';
+$lang['width & height'] = 'بلندا و پهنا';
+$lang['Empty caddie'] = 'خالی کردنِ سبد';
+$lang['No and unlock sub-albums'] = 'خیر و زیرآلبوم‌ها را باز کن';
+$lang['The settings for the guest are from the %s user'] = 'تنظیماتِ مهمان‌ها از کاربر %s گرفته می‌شود';

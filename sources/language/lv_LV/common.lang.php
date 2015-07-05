@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Latviešu [LV]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=427
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -419,4 +419,10 @@ $lang['Password is missing. Please enter the password.'] = 'Nepareiza parole. L�
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Trūkst paroles apstiprinājuma. Lūdzu apstipriniet izvēlēto paroli.';
 $lang['%d photos per page'] = '%d fotogrāfiju lapā';
 $lang['Theme'] = 'Tēma';
-?>
+$lang['No results for'] = 'Nav rezultātu';
+$lang['Apply on properties'] = 'Pielietot īpašībām';
+$lang['Photo title'] = 'Foto nosaukums';
+$lang['Photo description'] = 'Foto apraksts';
+$lang['Album name, A &rarr; Z'] = 'Albūma nosaukums, A &rarr; Z ';
+$lang['Album name, Z &rarr; A'] = 'Albūma nosaukums, Z &rarr; A ';
+$lang['Link: %s'] = 'Saite: %s';

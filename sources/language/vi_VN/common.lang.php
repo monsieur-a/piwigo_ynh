@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Tiếng Việt [VN]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=437
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -419,4 +419,10 @@ $lang['Password is missing. Please enter the password.'] = 'Thiếu mật khẩu
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Xác nhận mật khẩu bị thiếu. Vui lòng xác nhận lại mật khẩu đã chọn.';
 $lang['%d photos per page'] = '%d ảnh mỗi trang';
 $lang['Theme'] = 'Chủ đề';
-?>
+$lang['Apply on properties'] = 'Áp dụng cho thuộc tính';
+$lang['No results for'] = 'Không tìm thấy kết quả cho';
+$lang['Photo description'] = 'Mô tả hình ảnh';
+$lang['Photo title'] = 'Tiêu đề hình ảnh';
+$lang['Album name, A &rarr; Z'] = 'Tên album, A &rarr; Z';
+$lang['Album name, Z &rarr; A'] = 'Tên album, Z &rarr; A';
+$lang['Link: %s'] = 'Liên kết: %s';

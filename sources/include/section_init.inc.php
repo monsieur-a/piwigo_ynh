@@ -90,19 +90,6 @@ $next_token = 0;
 // the first token must be the identifier for the picture
 if (script_basename() == 'picture')
 {
-  // url compatibility with versions below 1.6
-  if ( isset($_GET['image_id'])
-       and isset($_GET['cat']) 
-       and is_numeric($_GET['cat']) )
-  {
-    $url = make_picture_url( array(
-        'section' => 'categories',
-        'category' => get_cat_info($_GET['cat']),
-        'image_id' => $_GET['image_id']
-      ) );
-    redirect($url);
-  }
-  
   $token = $tokens[$next_token];
   $next_token++;
   if ( is_numeric($token) )
@@ -242,9 +229,9 @@ if ('categories' == $page['section'])
   if (isset($page['category']))
   {
     $page = array_merge(
-      $page, 
+      $page,
       array(
-        'comment' => trigger_event(
+        'comment' => trigger_change(
             'render_category_description',
             $page['category']['comment'],
             'main_page_category_description'
@@ -292,8 +279,8 @@ SELECT id
           ),
         "\n  AND"
         );
-        
-        $subcat_ids = array_from_query($query, 'id');
+
+        $subcat_ids = query2array($query,null, 'id');
         $subcat_ids[] = $page['category']['id'];
         $where_sql = 'category_id IN ('.implode(',',$subcat_ids).')';
         // remove categories from forbidden because just checked above
@@ -304,6 +291,7 @@ SELECT id
       }
       else
       {
+        $cache_key = $persistent_cache->make_key('all_iids'.$user['id'].$user['cache_update_time'].$conf['order_by']);
         unset($page['is_homepage']);
         $where_sql = '1=1';
       }
@@ -314,8 +302,10 @@ SELECT id
       $where_sql = 'category_id = '.$page['category']['id'];
     }
 
-    // main query
-    $query = '
+    if ( !isset($cache_key) || !$persistent_cache->get($cache_key, $page['items']))
+    {
+      // main query
+      $query = '
 SELECT DISTINCT(image_id)
   FROM '.IMAGE_CATEGORY_TABLE.'
     INNER JOIN '.IMAGES_TABLE.' ON id = image_id
@@ -325,7 +315,11 @@ SELECT DISTINCT(image_id)
   '.$conf['order_by'].'
 ;';
 
-    $page['items'] = array_from_query($query, 'image_id');
+      $page['items'] = query2array($query,null, 'image_id');
+      
+      if ( isset($cache_key) )
+        $persistent_cache->set($cache_key, $page['items']);
+    }
   }
 }
 // special sections
@@ -416,7 +410,7 @@ SELECT image_id
       $page = array_merge(
         $page,
         array(
-          'items' => array_from_query($query, 'image_id'),
+          'items' => query2array($query,null, 'image_id'),
           )
         );
 
@@ -463,7 +457,7 @@ SELECT DISTINCT(id)
       array(
         'title' => '<a href="'.duplicate_index_url(array('start'=>0)).'">'
                     .l10n('Recent photos').'</a>',
-        'items' => array_from_query($query, 'id'),
+        'items' => query2array($query,null, 'id'),
         )
       );
   }
@@ -486,7 +480,7 @@ SELECT DISTINCT(id)
   {
     $page['super_order_by'] = true;
     $conf['order_by'] = ' ORDER BY hit DESC, id DESC';
-    
+
     $query = '
 SELECT DISTINCT(id)
   FROM '.IMAGES_TABLE.'
@@ -502,7 +496,7 @@ SELECT DISTINCT(id)
       array(
         'title' => '<a href="'.duplicate_index_url(array('start'=>0)).'">'
                     .$conf['top_number'].' '.l10n('Most visited').'</a>',
-        'items' => array_from_query($query, 'id'),
+        'items' => query2array($query,null, 'id'),
         )
       );
   }
@@ -528,7 +522,7 @@ SELECT DISTINCT(id)
       array(
         'title' => '<a href="'.duplicate_index_url(array('start'=>0)).'">'
                     .$conf['top_number'].' '.l10n('Best rated').'</a>',
-        'items' => array_from_query($query, 'id'),
+        'items' => query2array($query,null, 'id'),
         )
       );
   }
@@ -551,7 +545,7 @@ SELECT DISTINCT(id)
       array(
         'title' => '<a href="'.duplicate_index_url(array('start'=>0)).'">'
                     .l10n('Random photos').'</a>',
-        'items' => array_from_query($query, 'id'),
+        'items' => query2array($query,null, 'id'),
         )
       );
   }
@@ -632,7 +626,7 @@ if ( 'categories'==$page['section'] and isset($page['category']) )
   if ($need_redirect)
   {
     $redirect_url = script_basename()=='picture' ? duplicate_picture_url() : duplicate_index_url();
-    
+
     if (!headers_sent())
     { // this is a permanent redirection
       set_status_header(301);
@@ -643,5 +637,5 @@ if ( 'categories'==$page['section'] and isset($page['category']) )
   unset( $need_redirect, $page['hit_by'] );
 }
 
-trigger_action('loc_end_section_init');
+trigger_notify('loc_end_section_init');
 ?>

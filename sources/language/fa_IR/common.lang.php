@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: پارسی [IR]
-Version: 2.6.0
+Version: 2.7.1
 Language URI: http://piwigo.org/ext/extension_view.php?eid=419
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -425,4 +425,10 @@ $lang['Password is missing. Please enter the password.'] = 'گذرواژه ای 
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'پذیرش گذرواژه با گذرواژه‌ی اصلی همخوانی ندارد. خواهشمندیم گذرواژه‌ی اصلی را در بخش پذیرش گذرواژه نیز بنویسید.';
 $lang['Theme'] = 'زمینه';
 $lang['%d photos per page'] = '%d عکس در هر برگ';
-?>
+$lang['No results for'] = 'نتیجه‌ای پیدا نشد برای';
+$lang['Photo description'] = 'توضیحاتِ عکس';
+$lang['Photo title'] = 'عنوانِ عکس';
+$lang['Album name, A &rarr; Z'] = 'نام آلبوم، به ترتیب حروف الفبا';
+$lang['Album name, Z &rarr; A'] = 'نام آلبوم، برعکسِ حروف الفبا';
+$lang['Apply on properties'] = 'تایید مشخصات';
+$lang['Link: %s'] = 'لینک: %s';

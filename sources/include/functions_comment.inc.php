@@ -24,14 +24,13 @@
 /**
  * @package functions\comment
  */
- 
 
-add_event_handler('user_comment_check', 'user_comment_check',
-  EVENT_HANDLER_PRIORITY_NEUTRAL, 2);
+
+add_event_handler('user_comment_check', 'user_comment_check');
 
 /**
  * Does basic check on comment and returns action to perform.
- * This method is called by a trigger_event()
+ * This method is called by a trigger_change()
  *
  * @param string $action before check
  * @param array $comment
@@ -143,22 +142,30 @@ SELECT COUNT(*) AS user_exists
     $comment_action='reject';
     $_POST['cr'][] = 'key'; // rvelices: I use this outside to see how spam robots work
   }
-  
+
   // website
   if (!empty($comm['website_url']))
   {
-    $comm['website_url'] = strip_tags($comm['website_url']);
-    if (!preg_match('/^https?/i', $comm['website_url']))
-    {
-      $comm['website_url'] = 'http://'.$comm['website_url'];
-    }
-    if (!url_check_format($comm['website_url']))
-    {
-      $infos[] = l10n('Your website URL is invalid');
+    if (!$conf['comments_enable_website'])
+    { // honeypot: if the field is disabled, it should be empty !
       $comment_action='reject';
+      $_POST['cr'][] = 'website_url';
+    }
+    else
+    {
+      $comm['website_url'] = strip_tags($comm['website_url']);
+      if (!preg_match('/^https?/i', $comm['website_url']))
+      {
+        $comm['website_url'] = 'http://'.$comm['website_url'];
+      }
+      if (!url_check_format($comm['website_url']))
+      {
+        $infos[] = l10n('Your website URL is invalid');
+        $comment_action='reject';
+      }
     }
   }
-  
+
   // email
   if (empty($comm['email']))
   {
@@ -166,25 +173,25 @@ SELECT COUNT(*) AS user_exists
     {
       $comm['email'] = $user['email'];
     }
-    else if ($conf['comments_email_mandatory'])
+    elseif ($conf['comments_email_mandatory'])
     {
       $infos[] = l10n('Email address is missing. Please specify an email address.');
       $comment_action='reject';
     }
   }
-  else if (!email_check_format($comm['email']))
+  elseif (!email_check_format($comm['email']))
   {
     $infos[] = l10n('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
     $comment_action='reject';
   }
-  
+
   // anonymous id = ip address
   $ip_components = explode('.', $comm['ip']);
   if (count($ip_components) > 3)
   {
     array_pop($ip_components);
   }
-  $comm['anonymous_id'] = implode('.', $ip_components);
+  $anonymous_id = implode('.', $ip_components);
 
   if ($comment_action!='reject' and $conf['anti-flood_time']>0 and !is_admin())
   { // anti-flood system
@@ -197,7 +204,7 @@ SELECT count(1) FROM '.COMMENTS_TABLE.'
     if (!is_classic_user())
     {
       $query.= '
-      AND anonymous_id = "'.$comm['anonymous_id'].'"';
+      AND anonymous_id LIKE "'.$anonymous_id.'.%"';
     }
     $query.= '
 ;';
@@ -207,11 +214,12 @@ SELECT count(1) FROM '.COMMENTS_TABLE.'
     {
       $infos[] = l10n('Anti-flood system : please wait for a moment before trying to post another comment');
       $comment_action='reject';
+      $_POST['cr'][] = 'flood_time';
     }
   }
 
   // perform more spam check
-  $comment_action = trigger_event('user_comment_check',
+  $comment_action = trigger_change('user_comment_check',
       $comment_action, $comm
     );
 
@@ -223,7 +231,7 @@ INSERT INTO '.COMMENTS_TABLE.'
   VALUES (
     \''.$comm['author'].'\',
     '.$comm['author_id'].',
-    \''.$comm['anonymous_id'].'\',
+    \''.$comm['ip'].'\',
     \''.$comm['content'].'\',
     NOW(),
     \''.($comment_action=='validate' ? 'true':'false').'\',
@@ -283,27 +291,27 @@ function delete_user_comment($comment_id)
   {
     $user_where_clause = '   AND author_id = \''.$GLOBALS['user']['id'].'\'';
   }
-  
+
   if (is_array($comment_id))
     $where_clause = 'id IN('.implode(',', $comment_id).')';
   else
     $where_clause = 'id = '.$comment_id;
-    
+
   $query = '
 DELETE FROM '.COMMENTS_TABLE.'
   WHERE '.$where_clause.
 $user_where_clause.'
 ;';
-  
+
   if ( pwg_db_changes(pwg_query($query)) )
   {
     invalidate_user_cache_nb_comments();
 
-    email_admin('delete', 
+    email_admin('delete',
                 array('author' => $GLOBALS['user']['username'],
                       'comment_id' => $comment_id
                   ));
-    trigger_action('user_comment_deletion', $comment_id);
+    trigger_notify('user_comment_deletion', $comment_id);
 
     return true;
   }
@@ -342,7 +350,7 @@ function update_user_comment($comment, $post_key)
 
   // perform more spam check
   $comment_action =
-    trigger_event('user_comment_check',
+    trigger_change('user_comment_check',
 		  $comment_action,
 		  array_merge($comment,
 			      array('author' => $GLOBALS['user']['username'])
@@ -383,9 +391,9 @@ UPDATE '.COMMENTS_TABLE.'
 $user_where_clause.'
 ;';
     $result = pwg_query($query);
-    
+
     // mail admin and ask to validate the comment
-    if ($result and $conf['email_admin_on_comment_validation'] and 'moderate' == $comment_action) 
+    if ($result and $conf['email_admin_on_comment_validation'] and 'moderate' == $comment_action)
     {
       include_once(PHPWG_ROOT_PATH.'include/functions_mail.inc.php');
 
@@ -411,7 +419,7 @@ $user_where_clause.'
 				'content' => stripslashes($comment['content'])) );
     }
   }
-  
+
   return $comment_action;
 }
 
@@ -482,7 +490,7 @@ SELECT
       return false;
     }
   }
-  
+
   list($author_id) = pwg_db_fetch_row($result);
 
   return $author_id;
@@ -499,7 +507,7 @@ function validate_user_comment($comment_id)
     $where_clause = 'id IN('.implode(',', $comment_id).')';
   else
     $where_clause = 'id = '.$comment_id;
-    
+
   $query = '
 UPDATE '.COMMENTS_TABLE.'
   SET validated = \'true\'
@@ -507,9 +515,9 @@ UPDATE '.COMMENTS_TABLE.'
   WHERE '.$where_clause.'
 ;';
   pwg_query($query);
-  
+
   invalidate_user_cache_nb_comments();
-  trigger_action('user_comment_validation', $comment_id);
+  trigger_notify('user_comment_validation', $comment_id);
 }
 
 /**

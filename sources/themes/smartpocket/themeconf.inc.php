@@ -1,7 +1,7 @@
 <?php
 /*
 Theme Name: Smart Pocket
-Version: 2.6.2
+Version: 2.7.2
 Description: Mobile theme.
 Theme URI: http://piwigo.org/ext/extension_view.php?eid=599
 Author: P@t
@@ -114,7 +114,7 @@ function mobile_link()
   if ( !empty($conf['mobile_theme']) && (get_device() != 'desktop' || mobile_theme()))
   {
     $template->assign(array(
-                            'TOGGLE_MOBILE_THEME_URL' => add_url_params(duplicate_index_url(),array('mobile' => mobile_theme() ? 'false' : 'true')),
+                            'TOGGLE_MOBILE_THEME_URL' => add_url_params(htmlspecialchars($_SERVER['REQUEST_URI']),array('mobile' => mobile_theme() ? 'false' : 'true')),
       ));
   }
 }

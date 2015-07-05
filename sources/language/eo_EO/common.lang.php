@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Esperanto [EO]
-Version: 2.6.0
+Version: 2.7.1
 Language URI: http://piwigo.org/ext/extension_view.php?eid=596
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -420,4 +420,10 @@ $lang['Password is missing. Please enter the password.'] = 'Mankas pasvorto. Bon
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Mankas konfirmado de pasvorto. Bonvolu konfirmi la elektitan pasvorton.';
 $lang['%d photos per page'] = '%d fotoj sur ĉiu paĝo';
 $lang['Theme'] = 'Temo';
-?>
+$lang['No results for'] = 'Neniu rezulto por';
+$lang['Apply on properties'] = 'Apliku al la ecoj';
+$lang['Photo description'] = 'Fotopriskribo';
+$lang['Photo title'] = 'Fototitolo';
+$lang['Album name, A &rarr; Z'] = 'Fotara nomo, A &rarr; Z';
+$lang['Album name, Z &rarr; A'] = 'Fotara nomo, Z &rarr; A';
+$lang['Link: %s'] = 'Ligilo: %s';

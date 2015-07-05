@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Italiano [IT]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=424
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -173,8 +173,10 @@ $lang['Filesize'] = 'Dimensione';
 $lang['Filter and display'] = 'Filtra e visualizza';
 $lang['Filter'] = 'Filtro';
 $lang['First'] = 'Primo';
+$lang['First Page'] = 'Prima pagina';
 $lang['Forgot your password?'] = 'Password dimenticata?';
 $lang['from %s to %s'] = 'da %s a %s';
+$lang['Go back to the album'] = 'Ritorna all\'album';
 $lang['Go through the gallery as a visitor'] = 'Visita la galleria come ospite';
 $lang['group by letters'] = 'ragruppare per lettera';
 $lang['guest'] = 'ospite';
@@ -201,6 +203,7 @@ $lang['Kind of date'] = 'Tipo di data';
 $lang['Language'] = 'Lingua';
 $lang['last %d days'] = 'ultimi %d giorni';
 $lang['Last'] = 'Ultima';
+$lang['Last Page'] = 'Ultima pagina';
 $lang['letters'] = 'lettere';
 $lang['Links'] = 'Links';
 $lang['login mustn\'t end with a space character'] = 'il nome utente non deve finire con uno spazio';
@@ -411,11 +414,14 @@ $lang['mandatory'] = 'obbligatorio';
 $lang['Website'] = 'Sito web';
 $lang['Your website URL is invalid'] = 'L\'indirizzo del vostro sito web non è valido';
 $lang['Email'] = 'Email';
-$lang['Go back to the album'] = 'Ritorna all\'album';
-$lang['Last Page'] = 'Ultima pagina';
-$lang['First Page'] = 'Prima pagina';
 $lang['Password is missing. Please enter the password.'] = 'Campo password vuoto. Prego inserire la password.';
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Campo conferma della password vuoto. Si prega di confermare la password scelta.';
 $lang['%d photos per page'] = '%d foto per pagina';
 $lang['Theme'] = 'Tema';
-?>
+$lang['No results for'] = 'Nessun risultato per';
+$lang['Apply on properties'] = 'Applica alle proprietà';
+$lang['Photo description'] = 'Descrizione foto';
+$lang['Photo title'] = 'Titolo foto';
+$lang['Album name, A &rarr; Z'] = 'Nome album, A &rarr; Z';
+$lang['Album name, Z &rarr; A'] = 'Nome album, Z &rarr; A';
+$lang['Link: %s'] = 'Link: %s';

@@ -69,7 +69,7 @@ if (!in_array($conf['comments_page_nb_comments'], $items_number))
       $items_number_new[] = $conf['comments_page_nb_comments'];
       $is_inserted = true;
     }
-    
+
     $items_number_new[] = $number;
   }
 
@@ -88,8 +88,8 @@ $since_options = array(
   4 => array('label' => l10n('the beginning'),
              'clause' => '1=1') // stupid but generic
   );
-  
-trigger_action('loc_begin_comments');
+
+trigger_notify('loc_begin_comments');
 
 if (!empty($_GET['since']) && is_numeric($_GET['since']))
 {
@@ -265,7 +265,7 @@ if (isset($action))
             ),
           $_POST['key']
           );
-        
+
         switch ($comment_action)
         {
           case 'moderate':
@@ -281,7 +281,7 @@ if (isset($action))
             trigger_error('Invalid comment action '.$comment_action, E_USER_WARNING);
         }
       }
-      
+
       $edit_comment = $_GET['edit'];
     }
 
@@ -303,8 +303,8 @@ $template->set_filenames(array('comments'=>'comments.tpl'));
 $template->assign(
   array(
     'F_ACTION'=>PHPWG_ROOT_PATH.'comments.php',
-    'F_KEYWORD'=> @htmlspecialchars(stripslashes($_GET['keyword'], ENT_QUOTES, 'utf-8')),
-    'F_AUTHOR'=> @htmlspecialchars(stripslashes($_GET['author'], ENT_QUOTES, 'utf-8')),
+    'F_KEYWORD'=> htmlspecialchars(stripslashes(@$_GET['keyword'])),
+    'F_AUTHOR'=> htmlspecialchars(stripslashes(@$_GET['author'])),
     )
   );
 
@@ -437,13 +437,13 @@ SELECT *
   FROM '.IMAGES_TABLE.'
   WHERE id IN ('.implode(',', $element_ids).')
 ;';
-  $elements = hash_from_query($query, 'id');
+  $elements = query2array($query, 'id');
 
   // retrieving category informations
-  $query = 'SELECT id, name, permalink, uppercats 
+  $query = 'SELECT id, name, permalink, uppercats
   FROM '.CATEGORIES_TABLE.'
   WHERE id IN ('.implode(',', $category_ids).')';
-  $categories = hash_from_query($query, 'id');
+  $categories = query2array($query, 'id');
 
   foreach ($comments as $comment)
   {
@@ -467,7 +467,7 @@ SELECT *
         'image_file' => $elements[$comment['image_id']]['file'],
         )
       );
-      
+
     $email = null;
     if (!empty($comment['user_email']))
     {
@@ -483,12 +483,12 @@ SELECT *
       'U_PICTURE' => $url,
       'src_image' => $src_image,
       'ALT' => $name,
-      'AUTHOR' => trigger_event('render_comment_author', $comment['author']),
+      'AUTHOR' => trigger_change('render_comment_author', $comment['author']),
       'WEBSITE_URL' => $comment['website_url'],
-      'DATE'=>format_date($comment['date'], true),
-      'CONTENT'=>trigger_event('render_comment_content',$comment['content']),
+      'DATE'=>format_date($comment['date'], array('day_name','day','month','year','time')),
+      'CONTENT'=>trigger_change('render_comment_content',$comment['content']),
       );
-      
+
     if (is_admin())
     {
       $tpl_comment['EMAIL'] = $email;
@@ -543,7 +543,7 @@ SELECT *
   }
 }
 
-$derivative_params = trigger_event('get_comments_derivative_params', ImageStdParams::get_by_type(IMG_THUMB) );
+$derivative_params = trigger_change('get_comments_derivative_params', ImageStdParams::get_by_type(IMG_THUMB) );
 $template->assign( 'derivative_params', $derivative_params );
 
 // include menubar
@@ -557,7 +557,7 @@ if (!isset($themeconf['hide_menu_on']) OR !in_array('theCommentsPage', $themecon
 // |                           html code display                           |
 // +-----------------------------------------------------------------------+
 include(PHPWG_ROOT_PATH.'include/page_header.php');
-trigger_action('loc_end_comments');
+trigger_notify('loc_end_comments');
 flush_page_messages();
 $template->pparse('comments');
 include(PHPWG_ROOT_PATH.'include/page_tail.php');

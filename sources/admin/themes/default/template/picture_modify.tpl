@@ -1,37 +1,45 @@
 {include file='include/autosize.inc.tpl'}
-{include file='include/dbselect.inc.tpl'}
 {include file='include/datepicker.inc.tpl'}
+{include file='include/colorbox.inc.tpl'}
 
-{combine_script id='jquery.chosen' load='footer' path='themes/default/js/plugins/chosen.jquery.min.js'}
-{combine_css path="themes/default/js/plugins/chosen.css"}
+{combine_script id='LocalStorageCache' load='footer' path='admin/themes/default/js/LocalStorageCache.js'}
 
-{footer_script}{literal}
-jQuery(document).ready(function() {
-  jQuery(".chzn-select").chosen();
-});
-{/literal}{/footer_script}
-
-{combine_css path='themes/default/js/plugins/jquery.tokeninput.css'}
-{combine_script id='jquery.tokeninput' load='async' require='jquery' path='themes/default/js/plugins/jquery.tokeninput.js'}
-{footer_script require='jquery.tokeninput'}
-jQuery(document).ready(function() {ldelim}
-  jQuery("#tags").tokenInput(
-    [{foreach from=$tags item=tag name=tags}{ldelim}"name":"{$tag.name|@escape:'javascript'}","id":"{$tag.id}"{rdelim}{if !$smarty.foreach.tags.last},{/if}{/foreach}],
-    {ldelim}
-      hintText: '{'Type in a search term'|@translate}',
-      noResultsText: '{'No results'|@translate}',
-      searchingText: '{'Searching...'|@translate}',
-      newText: ' ({'new'|@translate})',
-      animateDropdown: false,
-      preventDuplicates: true,
-      allowFreeTagging: true
-    }
-  );
-});
-{/footer_script}
+{combine_script id='jquery.selectize' load='footer' path='themes/default/js/plugins/selectize.min.js'}
+{combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.{$themeconf.colorscheme}.css"}
 
 {footer_script}
-pwg_initialization_datepicker("#date_creation_day", "#date_creation_month", "#date_creation_year", "#date_creation_linked_date", "#date_creation_action_set");
+(function(){
+{* <!-- CATEGORIES --> *}
+var categoriesCache = new CategoriesCache({
+  serverKey: '{$CACHE_KEYS.categories}',
+  serverId: '{$CACHE_KEYS._hash}',
+  rootUrl: '{$ROOT_URL}'
+});
+
+categoriesCache.selectize(jQuery('[data-selectize=categories]'));
+
+{* <!-- TAGS --> *}
+var tagsCache = new TagsCache({
+  serverKey: '{$CACHE_KEYS.tags}',
+  serverId: '{$CACHE_KEYS._hash}',
+  rootUrl: '{$ROOT_URL}'
+});
+
+tagsCache.selectize(jQuery('[data-selectize=tags]'), { lang: {
+  'Add': '{'Create'|translate}'
+}});
+
+{* <!-- DATEPICKER --> *}
+jQuery(function(){ {* <!-- onLoad needed to wait localization loads --> *}
+  jQuery('[data-datepicker]').pwgDatepicker({
+    showTimepicker: true,
+    cancelButton: '{'Cancel'|translate}'
+  });
+});
+
+{* <!-- THUMBNAILS --> *}
+jQuery("a.preview-box").colorbox();
+}());
 {/footer_script}
 
 <h2>{$TITLE} &#8250; {'Edit photo'|@translate} {$TABSHEET_TITLE}</h2>
@@ -45,7 +53,7 @@ pwg_initialization_datepicker("#date_creation_day", "#date_creation_month", "#da
 
       <tr>
         <td id="albumThumbnail">
-          <img src="{$TN_SRC}" alt="{'Thumbnail'|@translate}" class="Thumbnail">
+          <a href="{$FILE_SRC}" class="preview-box icon-zoom-in" title="{$TITLE|htmlspecialchars}"><img src="{$TN_SRC}" alt="{'Thumbnail'|translate}"></a>
         </td>
         <td id="albumLinks" style="width:400px;vertical-align:top;">
           <ul style="padding-left:15px;margin:0;">
@@ -92,47 +100,36 @@ pwg_initialization_datepicker("#date_creation_day", "#date_creation_month", "#da
     <p>
       <strong>{'Creation date'|@translate}</strong>
       <br>
-      <select id="date_creation_day" name="date_creation_day">
-        <option value="0">--</option>
-{section name=day start=1 loop=32}
-        <option value="{$smarty.section.day.index}" {if $smarty.section.day.index==$DATE_CREATION_DAY_VALUE}selected="selected"{/if}>{$smarty.section.day.index}</option>
-{/section}
-      </select>
-
-      <select id="date_creation_month" name="date_creation_month">
-        {html_options options=$month_list selected=$DATE_CREATION_MONTH_VALUE}
-      </select>
-
-      <input id="date_creation_year" name="date_creation_year" type="text" size="4" maxlength="4" value="{$DATE_CREATION_YEAR_VALUE}">
-      <input id="date_creation_linked_date" name="date_creation_linked_date" type="hidden" size="10" disabled="disabled">
-      <input name="date_creation_time" type="hidden" value="{$DATE_CREATION_TIME_VALUE}">
-      <a href="#" id="unset_date_creation" style="display:none">unset</a>
+      <input type="hidden" name="date_creation" value="{$DATE_CREATION}">
+      <label>
+        <i class="icon-calendar"></i>
+        <input type="text" data-datepicker="date_creation" data-datepicker-unset="date_creation_unset" readonly>
+      </label>
+      <a href="#" class="icon-cancel-circled" id="date_creation_unset">{'unset'|translate}</a>
     </p>
 
     <p>
       <strong>{'Linked albums'|@translate}</strong>
       <br>
-      <select data-placeholder="Select albums..." class="chzn-select" multiple style="width:700px;" name="associate[]">
-        {html_options options=$associate_options selected=$associate_options_selected}
-      </select>
+      <select data-selectize="categories" data-value="{$associated_albums|@json_encode|escape:html}"
+        placeholder="{'Type in a search term'|translate}"
+        data-default="{$STORAGE_ALBUM}" name="associate[]" multiple style="width:600px;"></select>
     </p>
 
     <p>
       <strong>{'Representation of albums'|@translate}</strong>
       <br>
-      <select data-placeholder="Select albums..." class="chzn-select" multiple style="width:700px;" name="represent[]">
-        {html_options options=$represent_options selected=$represent_options_selected}
-      </select>
+      <select data-selectize="categories" data-value="{$represented_albums|@json_encode|escape:html}"
+        placeholder="{'Type in a search term'|translate}"
+        name="represent[]" multiple style="width:600px;"></select>
     </p>
 
     <p>
       <strong>{'Tags'|@translate}</strong>
       <br>
-<select id="tags" name="tags">
-{foreach from=$tag_selection item=tag}
-  <option value="{$tag.id}" class="selected">{$tag.name}</option>
-{/foreach}
-</select>
+      <select data-selectize="tags" data-value="{$tag_selection|@json_encode|escape:html}"
+        placeholder="{'Type in a search term'|translate}"
+        data-create="true" name="tags[]" multiple style="width:600px;"></select>
     </p>
 
     <p>
