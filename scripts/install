@@ -103,6 +103,5 @@ then
 fi
 
 # Remove temporary entry in /etc/hosts
-sudo sed -i '/yunopiwigo/d' /etc/hosts
-
-
+sudo sed '/yunopiwigo/d' /etc/hosts > /tmp/hosts.tmp
+sudo cp /tmp/hosts.tmp /etc/hosts ; sudo rm -f /tmp/hosts.tmp
